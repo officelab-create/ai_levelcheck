@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 端末がダークモードでも白基調のまま表示させる（ブラウザの自動反転を防ぐ） -->
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f4f5f7">
+<title>AI活用度レベル診断 | あなたのAIスキルを100点満点で診断</title>
+<style>
+  /* 参考デザインに合わせ、端末の設定にかかわらず常に白基調で表示する */
+  :root{
+    color-scheme:light;
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --ink:#0f1115;
+    --ink-sub:#5b6472;
+    --line:#e4e7ec;
+    --accent:#2f5bea;
+    --accent-ink:#ffffff;
+    --dark:#1b1f27;
+    --mesh:#c3c9d4;
+    --shadow:0 10px 30px rgba(16,22,38,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    font-size:16px;
+    line-height:1.7;
+    -webkit-text-size-adjust:100%;
+    overflow-x:hidden;
+  }
+  #mesh{
+    position:fixed;top:0;left:0;display:block;
+    width:100%;height:100%;z-index:0;pointer-events:none;opacity:.9;
+  }
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:24px 16px 64px}
+
+  /* ---------- トップ画面 ---------- */
+  .hero{text-align:center;padding:48px 8px 24px}
+  .hero .mark{font-size:34px;line-height:1}
+  .hero h1{
+    font-size:clamp(28px,8.5vw,42px);
+    font-weight:800;letter-spacing:-.02em;margin:14px 0 6px;
+  }
+  .hero .arrow{font-size:26px;color:var(--ink)}
+  .hero p{color:var(--ink-sub);font-size:17px;margin:12px auto 30px;max-width:22em}
+  .meta{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;color:var(--ink-sub);font-size:14px;margin-top:18px}
+  .meta span{white-space:nowrap}
+
+  /* ---------- シリーズ表示（SERIES 02 上級編。01入門版と相互リンク） ---------- */
+  .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.18em;color:var(--ink)}
+  .brand i{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#2f9e5b,#2f5bea 45%,#6d3fd6 75%,#e8a200)}
+  .brand span{color:var(--ink-sub);font-weight:700}
+  .brand .vol{margin-left:auto;padding:4px 10px;border:1px solid var(--ink);border-radius:99px;letter-spacing:.12em;font-size:11px;color:var(--ink)}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.16em;color:#6d3fd6;margin-top:14px}
+  .eyebrow::before,.eyebrow::after{content:"";width:18px;height:2px;background:#6d3fd6;border-radius:2px}
+  .s01{
+    display:flex;align-items:center;gap:12px;margin:22px 0 0;padding:12px 14px;
+    border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.8);
+    color:var(--ink);text-decoration:none;text-align:left;
+  }
+  .s01 .no{font-size:22px;font-weight:900;letter-spacing:-.04em;color:#2f9e5b}
+  .s01 .body{flex:1;min-width:0;font-size:12.5px;color:var(--ink-sub);line-height:1.5}
+  .s01 .body b{display:block;font-size:14.5px;color:var(--ink)}
+  .s01 .go{font-size:12px;font-weight:800;color:#1f7a45;background:#e9f6ee;padding:6px 10px;border-radius:99px;white-space:nowrap}
+
+  /* ---------- トップ画面（上級編のヒーロー：暗いパネル＋金と紫の光） ---------- */
+  .brand{margin-bottom:14px}
+  .hero2{
+    position:relative;overflow:hidden;isolation:isolate;
+    margin:0 -4px;padding:30px 20px 24px;border-radius:28px;
+    background:
+      radial-gradient(120% 70% at 100% 0%, rgba(109,63,214,.55) 0%, transparent 55%),
+      radial-gradient(90% 60% at 0% 100%, rgba(240,168,0,.28) 0%, transparent 60%),
+      linear-gradient(160deg,#10131c 0%,#1a1f33 55%,#0e1119 100%);
+    color:#fff;box-shadow:0 24px 50px rgba(16,22,38,.35);
+  }
+  /* うっすらとした方眼（計測・本格感） */
+  .hero2::before{
+    content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:24px 24px;
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 75%);mask-image:linear-gradient(180deg,#000 0%,transparent 75%);
+  }
+  .h2-glow{
+    position:absolute;z-index:-1;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(167,139,250,.55),transparent 65%);
+    animation:h2Glow 5s ease-in-out infinite alternate;
+  }
+  @keyframes h2Glow{0%{transform:translate(0,0) scale(1);opacity:.8}100%{transform:translate(-30px,20px) scale(1.15);opacity:1}}
+  .bignum2{
+    position:absolute;right:-4px;top:4px;z-index:-1;
+    font-size:clamp(120px,40vw,190px);font-weight:900;line-height:.8;letter-spacing:-.06em;
+    color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.14);user-select:none;
+  }
+  .eyebrow2{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.16em;color:#ffd84d}
+  .eyebrow2::before{content:"";width:22px;height:2px;background:#ffd84d;border-radius:2px}
+  .hero2 h1{font-size:clamp(34px,10vw,48px);font-weight:900;letter-spacing:-.03em;line-height:1.15;margin:12px 0 10px;color:#fff}
+  .hero2 h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg,#ffd84d 0%,#ff9fd1 45%,#b9a4ff 75%,#7ea2ff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:h2Shine 5s linear infinite;
+  }
+  @keyframes h2Shine{0%{background-position:0% 0}100%{background-position:-200% 0}}
+  .lead2{color:#c3cad8;font-size:15.5px;margin:0 0 12px;max-width:24em}
+  .challenge{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;
+    background:rgba(255,216,77,.12);border:1px solid rgba(255,216,77,.45);color:#ffe27a;font-size:13px;font-weight:800;
+  }
+  .ladder{margin:22px -6px 14px}
+  .ladder svg{display:block;width:100%;height:auto;overflow:visible}
+  .ld-bar{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);animation:ldGrow .8s cubic-bezier(.2,1.2,.4,1) forwards}
+  @keyframes ldGrow{to{transform:scaleY(1)}}
+  .ld-lv{opacity:0;animation:ldFade .5s ease forwards}
+  @keyframes ldFade{to{opacity:1}}
+  /* 最上位の棒に光が走る（2.2秒おき） */
+  .ld-sheen{transform:translateX(0);animation:ldSheen 3.2s ease-in-out 1.8s infinite}
+  @keyframes ldSheen{0%{transform:translateX(0)}45%,100%{transform:translateX(100px)}}
+  .ld-tw{opacity:0;transform-box:fill-box;transform-origin:center;animation:ldTw 2.8s ease-in-out 1.6s infinite}
+  @keyframes ldTw{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+
+  /* スタートボタン：金色＋光が走る */
+  .btn.btn-gold{   /* 後ろで定義される .btn の黒背景より優先させる */
+    position:relative;overflow:hidden;min-height:60px;font-size:18px;
+    background:linear-gradient(135deg,#ffe27a 0%,#ffc21a 45%,#f0a000 100%);color:#1b1f27;
+    box-shadow:0 10px 30px rgba(240,168,0,.35),inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .btn-gold::after{
+    content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);
+    transform:skewX(-20deg);animation:btnShine 3.2s ease-in-out 2.2s infinite;
+  }
+  @keyframes btnShine{0%{left:-40%}40%,100%{left:130%}}
+  .meta2{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .meta2 span{white-space:nowrap;padding:5px 12px;border-radius:99px;font-size:12.5px;color:#c9d0dc;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05)}
+
+  /* 見出し（シリーズのラインナップ） */
+  .series-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 12px}
+  .series-head b{font-size:12px;font-weight:800;letter-spacing:.18em}
+  .series-head span{font-size:13px;color:var(--ink-sub)}
+
+  /* シリーズのラインナップ（01と同じ見た目） */
+  .series{margin-top:30px}
+  .sc{
+    position:relative;display:flex;align-items:center;gap:14px;
+    padding:16px 16px;margin-bottom:10px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;
+    box-shadow:0 4px 14px rgba(16,22,38,.05);
+  }
+  .sc .no{flex:0 0 auto;width:44px;font-size:26px;font-weight:900;letter-spacing:-.04em;line-height:1}
+  .sc .body{flex:1;min-width:0}
+  .sc .tag{font-size:10.5px;font-weight:800;letter-spacing:.16em;color:var(--ink-sub)}
+  .sc .nm{font-size:16px;font-weight:800;line-height:1.4;margin:2px 0}
+  .sc .ds{font-size:12.5px;color:var(--ink-sub);line-height:1.5}
+  .sc .pill{flex:0 0 auto;font-size:11px;font-weight:800;letter-spacing:.06em;padding:6px 10px;border-radius:99px;white-space:nowrap}
+  .sc.open .no{color:#2f9e5b}
+  .sc.open .pill{background:#e9f6ee;color:#1f7a45}
+  .sc.open.pending{cursor:default}
+  .sc.open.pending .pill{background:var(--bg);color:var(--ink-sub)}
+  .sc.now{background:linear-gradient(135deg,#10131c,#1f2440);color:var(--card);border-color:#10131c}
+  .sc.now .tag{color:#ffd84d}
+  .sc.now .ds{color:#aab2c0}
+  .sc.now .pill{background:linear-gradient(135deg,#ffe27a,#f0a000);color:#1b1f27}
+  .sc.soon{background:repeating-linear-gradient(135deg,#f7f8fa 0 10px,#f1f3f6 10px 20px);border:1.5px dashed #c3c9d4;box-shadow:none;overflow:hidden}
+  .sc.soon .no,.sc.soon .nm{color:#b3bac6}
+  .sc.soon .nm{letter-spacing:.3em}
+  .sc.soon .pill{background:var(--card);color:var(--ink-sub);border:1px solid var(--line)}
+  .sc.soon::after{
+    content:"";position:absolute;top:0;bottom:0;left:-50%;width:40%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.9),transparent);
+    animation:btnShine 3.6s ease-in-out 1s infinite;
+  }
+  .series .hint{font-size:12.5px;color:var(--ink-sub);text-align:center;margin:8px 0 0}
+
+  /* 登場：少しずつ時間差でふわっと出る */
+  .rise{opacity:0;transform:translateY(14px);animation:rise .7s ease forwards;animation-delay:var(--d,0s)}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  @media (prefers-reduced-motion: reduce){
+    .hero2 *, .h2-glow, .btn-gold::after, .sc.soon::after, .hero2 h1 em{animation:none !important}
+    .rise, .ld-lv, .ld-bar{opacity:1 !important;transform:none !important;animation:none !important}
+    .ld-sheen, .ld-tw{display:none}
+  }
+
+  /* ---------- ボタン ---------- */
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;min-height:56px;padding:14px 20px;
+    border:0;border-radius:14px;
+    background:var(--dark);color:var(--card);
+    font-size:17px;font-weight:700;font-family:inherit;
+    cursor:pointer;
+  }
+  .btn:disabled{background:#a6acb8;color:#fff;cursor:not-allowed}
+  .btn-ghost{
+    background:transparent;color:var(--ink);
+    border:1px solid var(--line);
+    min-height:52px;font-weight:600;font-size:16px;
+  }
+  .btn-text{
+    background:none;border:0;color:var(--ink-sub);
+    font:inherit;font-size:14px;text-decoration:underline;
+    cursor:pointer;padding:10px;min-height:44px;
+  }
+
+  /* ---------- カード ---------- */
+  .card{
+    background:var(--card);border-radius:26px;
+    box-shadow:var(--shadow);
+    padding:22px 18px 26px;
+    margin-bottom:18px;
+  }
+
+  /* ---------- 設問画面 ---------- */
+  .bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:26px}
+  .bar > i{display:block;height:100%;background:var(--dark);border-radius:99px;transition:width .25s ease}
+  .qcount{text-align:center;color:var(--ink-sub);font-weight:700;letter-spacing:.08em;font-size:16px;margin-bottom:20px}
+  .qcount b{color:var(--ink-sub)}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 16px;border-radius:99px;font-size:14px;font-weight:700;
+    background:#eef1f6;color:var(--ink);border:1px solid var(--line);
+  }
+  .badge.multi{background:var(--dark);color:var(--card);border-color:var(--dark)}
+  .qtext{font-size:22px;font-weight:800;line-height:1.5;margin:20px 0 6px;letter-spacing:-.01em}
+  .qnote{color:var(--ink-sub);font-size:14px;margin:0 0 8px}
+  .opts{margin:18px 0 22px;display:flex;flex-direction:column;gap:12px}
+  .opt{
+    position:relative;display:flex;align-items:center;gap:14px;
+    width:100%;min-height:64px;padding:14px 16px 14px 20px;
+    background:var(--card);color:var(--ink);
+    border:1px solid var(--line);border-radius:16px;
+    font:inherit;font-size:16px;text-align:left;cursor:pointer;
+    overflow:hidden;
+  }
+  .opt::before{
+    content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;
+    border-radius:99px;background:var(--accent);
+  }
+  .opt.multi::before{background:var(--dark)}
+  .opt .box{
+    flex:0 0 auto;width:26px;height:26px;border:2px solid #b9c0cc;
+    border-radius:50%;
+  }
+  .opt.multi .box{border-radius:7px}
+  /* 選択済み【1つ選択】＝黒く反転させず、青で示す（文字を読みやすく保つ） */
+  .opt.on{
+    background:#eef2ff;color:var(--ink);
+    border-color:var(--accent);
+    box-shadow:inset 0 0 0 1px var(--accent);
+  }
+  .opt.on::before{background:var(--accent)}
+  .opt.on .box{border-color:var(--accent);position:relative}
+  .opt.on .box::after{
+    content:"";position:absolute;inset:4px;border-radius:inherit;background:var(--accent);
+  }
+
+  /* 選択済み【複数選択】＝参考デザインどおり黒地に白文字 */
+  .opt.multi.on{
+    background:var(--dark);color:var(--card);
+    border-color:var(--dark);box-shadow:none;
+  }
+  .opt.multi.on::before{background:var(--dark)}
+  .opt.multi.on .box{border-color:var(--card)}
+  .opt.multi.on .box::after{
+    inset:auto;background:none;border-radius:1px;
+    left:3px;top:5px;width:13px;height:7px;
+    border-left:3px solid var(--card);border-bottom:3px solid var(--card);
+    transform:rotate(-45deg);
+  }
+  .nav{display:flex;flex-direction:column;gap:10px}
+
+  /* ---------- 結果画面 ---------- */
+  .rhead{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 20px}
+  .rhead h2{font-size:30px;font-weight:800;margin:0;letter-spacing:-.02em}
+  .score{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:8px 0 6px}
+  .score .num{font-size:56px;font-weight:800;line-height:1;letter-spacing:-.03em}
+  .score .of{color:var(--ink-sub);font-size:18px;font-weight:700}
+  .delta{text-align:center;color:var(--ink-sub);font-size:15px;margin:2px 0 14px}
+  .delta b{color:var(--accent)}
+  .rankbox{
+    background:var(--bg);border:1px solid var(--line);border-radius:20px;
+    padding:26px 16px;text-align:center;margin-top:16px;
+  }
+  .rankbox .name{font-size:30px;font-weight:800;margin:18px 0 6px;letter-spacing:-.02em}
+  .rankbox .lv{color:var(--ink-sub);font-size:17px;font-weight:700;letter-spacing:.1em}
+  .advice{border-left:5px solid var(--accent);border-radius:18px}
+  .advice h3{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;margin:4px 0 14px}
+  .advice p{margin:0;font-size:16.5px;line-height:1.95}
+  .here h3{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;margin:4px 0 18px}
+  .tiers{display:flex;gap:4px;margin-top:8px}
+  .tiers span{
+    flex:1;text-align:center;font-size:11.5px;font-weight:700;color:var(--ink-sub);
+    border:1px solid var(--line);border-radius:8px;padding:5px 2px;background:var(--card);
+    white-space:nowrap;
+  }
+  .tiers span.on{background:var(--dark);color:var(--card);border-color:var(--dark)}
+  .foot{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:22px}
+  .note{color:var(--ink-sub);font-size:13px;text-align:center;margin-top:10px;line-height:1.7}
+
+  /* ---------- 称号「AI覚醒者」の覚醒演出（オリジナル。特定作品の再現ではない） ---------- */
+  #r-badge{overflow:visible}
+  .rankbox.awakened{background:radial-gradient(circle at 50% 32%,#fff4cc 0%,var(--bg) 62%)}
+  .rankbox.awakened .name{
+    background:linear-gradient(90deg,#9a5a00,#e8a200,#ffd84d,#e8a200,#9a5a00);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:awShine 2.4s linear infinite;
+  }
+  @keyframes awShine{to{background-position:-200% 0}}
+  /* 登場：小さい状態から弾むように現れる */
+  .aw-all{transform-box:view-box;transform-origin:60px 60px;animation:awIn .6s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes awIn{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+  /* 登場の瞬間の閃光と衝撃波（1回だけ） */
+  .aw-flash{opacity:0;animation:awFlash .7s ease-out both}
+  @keyframes awFlash{0%{opacity:.95}100%{opacity:0}}
+  .aw-burst{opacity:0;transform-box:view-box;transform-origin:60px 60px;animation:awBurst 1s ease-out .1s both}
+  @keyframes awBurst{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.9)}}
+  /* 炎のオーラ：足元を支点に揺らめく。3層で速さをずらす */
+  .aw-flame{transform-box:view-box;transform-origin:60px 96px;animation:awFlick 1.1s ease-in-out infinite alternate}
+  .aw-flame.f2{animation-duration:.8s;animation-delay:-.3s}
+  .aw-flame.f3{animation-duration:.6s;animation-delay:-.1s}
+  @keyframes awFlick{0%{transform:scale(1,1)}50%{transform:scale(1.03,1.09)}100%{transform:scale(.98,1.02)}}
+  /* 中央の紋章の鼓動 */
+  .aw-core{transform-box:view-box;transform-origin:60px 60px;animation:awPulse 1.6s ease-in-out infinite}
+  @keyframes awPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  /* 稲妻：ときどき走る */
+  .aw-bolt{opacity:0;animation:awBolt 2.6s linear infinite}
+  .aw-bolt.b2{animation-duration:3.1s;animation-delay:1.3s}
+  @keyframes awBolt{0%,86%,100%{opacity:0}88%{opacity:1}91%{opacity:.15}94%{opacity:1}97%{opacity:0}}
+  /* 立ちのぼる光の粒 */
+  .aw-spark{opacity:0;animation:awRise 2.2s ease-out infinite}
+  @keyframes awRise{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-46px)}}
+
+  /* ---------- 称号「AI超越者」の演出（覚醒者より上。金の炎ではなく、虹色の神々しい光） ---------- */
+  .rankbox.transcendent{background:radial-gradient(circle at 50% 32%,#f3eeff 0%,#fdfcff 30%,var(--bg) 64%)}
+  .rankbox.transcendent .name{
+    background:linear-gradient(90deg,#6d3fd6,#2f5bea,#0f8f9c,#b87900,#c0357f,#6d3fd6);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:awShine 3s linear infinite;
+  }
+  .ts-burst2{opacity:0;transform-box:view-box;transform-origin:60px 60px;animation:awBurst 1.3s ease-out .35s both}
+  /* 後光・光輪がゆっくり回る */
+  .ts-spin{transform-box:view-box;transform-origin:60px 60px;animation:tsSpin 24s linear infinite}
+  .ts-spin.ring1{animation-duration:12s}
+  .ts-spin.ring2{animation-duration:9s;animation-direction:reverse}
+  .ts-spin.orbit{animation-duration:5s}
+  @keyframes tsSpin{to{transform:rotate(360deg)}}
+  /* 後光の明滅 */
+  .ts-rays{animation:tsBreath 3s ease-in-out infinite}
+  @keyframes tsBreath{0%,100%{opacity:.55}50%{opacity:1}}
+  /* きらめき */
+  .ts-twinkle{opacity:0;transform-box:fill-box;transform-origin:center;animation:tsTwinkle 2.4s ease-in-out infinite}
+  @keyframes tsTwinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+
+  /* 端末の「視差効果を減らす」がONなら動きを止める（見た目は静止画で残る） */
+  @media (prefers-reduced-motion: reduce){
+    #r-badge *, .rankbox .name{animation:none !important}
+  }
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<!-- 背景のポリゴン模様（外部画像を使わずcanvasで描画・ゆっくり動きます） -->
+<canvas id="mesh" aria-hidden="true"></canvas>
+
+<div class="wrap">
+
+  <!-- ① トップ画面 -->
+  <section id="screen-top">
+    <div class="brand rise"><i></i>AIzu SKILL CHECK <span>SERIES</span><b class="vol">VOL.02</b></div>
+
+    <!-- 上級編のヒーロー：夜空のような暗いパネルに、金と紫の光 -->
+    <div class="hero2 rise" style="--d:.1s">
+      <div class="h2-glow" aria-hidden="true"></div>
+      <div class="bignum2" aria-hidden="true">02</div>
+      <div class="eyebrow2 rise" style="--d:.2s">SERIES 02 — ADVANCED</div>
+      <h1 class="rise" style="--d:.3s">AI活用度<br><em>レベル診断</em></h1>
+      <p class="lead2 rise" style="--d:.4s">上級者まで測れる本格版。あなたのAI活用レベルを100点満点で診断します。</p>
+      <div class="challenge rise" style="--d:.45s">&#9876;&#65039; あなたは、どの称号に届きますか？</div>
+
+      <!-- 4つの称号の階段（上ほど高く、最上位は虹色の光輪） -->
+      <div class="ladder rise" style="--d:.5s">
+        <svg id="ladder" viewBox="0 0 320 186" role="img" aria-label="4つの称号：AI未熟者、AI挑戦者、AI覚醒者、AI超越者"></svg>
+      </div>
+
+      <button class="btn btn-gold rise" style="--d:.6s" id="btn-start">&#9654; 本格診断をはじめる</button>
+      <div class="meta2 rise" style="--d:.7s">
+        <span>&#128337; 約5分</span>
+        <span>&#128176; 完全無料</span>
+        <span>&#10067; 全11問</span>
+        <span>&#128274; 回答は送信しません</span>
+      </div>
+    </div>
+    <p class="note" id="prev-note"></p>
+
+    <!-- シリーズのラインナップ -->
+    <div class="series rise" style="--d:.9s">
+      <div class="series-head"><b>SERIES LINEUP</b><span>このシリーズの診断</span></div>
+      <a class="sc open" id="s01-top" target="_blank" rel="noopener">
+        <div class="no">01</div>
+        <div class="body"><div class="tag">BASIC</div><div class="nm">AI活用度チェック</div><div class="ds">はじめての方〜中級の方向け・10問</div></div>
+        <div class="pill" id="s01-pill">公開準備中</div>
+      </a>
+      <div class="sc now">
+        <div class="no">02</div>
+        <div class="body"><div class="tag">ADVANCED</div><div class="nm">AI活用度レベル診断</div><div class="ds">上級者まで測れる本格版・11問</div></div>
+        <div class="pill">いま ここ</div>
+      </div>
+      <div class="sc soon">
+        <div class="no">03</div>
+        <div class="body"><div class="tag">COMING SOON</div><div class="nm">？？？</div><div class="ds">次の診断を準備中です</div></div>
+        <div class="pill">&#128274; 準備中</div>
+      </div>
+      <p class="hint">はじめての方は、01から受けるのがおすすめです</p>
+    </div>
+  </section>
+
+  <!-- ② 設問画面 -->
+  <section id="screen-quiz" class="hidden">
+    <div class="card">
+      <div class="bar"><i id="bar-fill" style="width:0%"></i></div>
+      <div class="qcount">&#10067; 質問 <b id="q-now">1</b> / <b>11</b></div>
+      <span class="badge" id="q-badge">1つ選択</span>
+      <h2 class="qtext" id="q-text"></h2>
+      <p class="qnote hidden" id="q-note"></p>
+      <div class="opts" id="q-opts"></div>
+      <div class="nav">
+        <button class="btn" id="btn-next" disabled>次の問題 &#8594;</button>
+        <button class="btn btn-ghost hidden" id="btn-prev">&#8592; 前の問題</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 結果画面 -->
+  <section id="screen-result" class="hidden">
+    <div class="card">
+      <div class="rhead">
+        <span style="font-size:30px">&#127942;</span>
+        <h2>診断結果</h2>
+      </div>
+      <div class="score">
+        <span style="font-size:34px">&#9733;</span>
+        <span class="num" id="r-score">0</span>
+        <span class="of">点 / 100点</span>
+      </div>
+      <div class="delta" id="r-delta"></div>
+      <div class="rankbox">
+        <svg id="r-badge" width="130" height="130" viewBox="0 0 120 120" aria-hidden="true"></svg>
+        <div class="name" id="r-name"></div>
+        <div class="lv" id="r-lv"></div>
+      </div>
+    </div>
+
+    <div class="card advice">
+      <h3><span>&#128161;</span> あなたへのアドバイス</h3>
+      <p id="r-advice"></p>
+    </div>
+
+    <div class="card here">
+      <h3><span>&#128200;</span> あなたの現在地</h3>
+      <svg id="r-graph" viewBox="0 0 320 130" width="100%" role="img" aria-label="現在地グラフ"></svg>
+      <div class="tiers" id="r-tiers"></div>
+    </div>
+
+    <a class="s01 hidden" id="s01-result" target="_blank" rel="noopener" style="margin:0 0 18px">
+      <span class="no">01</span>
+      <span class="body"><b>基礎から固めたい方へ</b>入門版 SERIES 01「AI活用度チェック」</span>
+      <span class="go">入門版へ →</span>
+    </a>
+
+    <div class="foot">
+      <button class="btn btn-ghost" id="btn-again">もう一度診断する</button>
+      <button class="btn-text" id="btn-clear">この端末に保存した記録を消す</button>
+      <p class="note">回答内容はどこにも送信していません。合計点だけがこの端末の中に保存されます。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     設問データ（要件定義書 6章と1対1で対応）
+     type : "single" = 1つ選択 / "multi" = 複数選択可
+     score: 採点方法
+       - list  : 選択肢ごとの固定点（single）
+       - pick  : 1つにつき per 点、cap 点で頭打ち（multi）
+       - right : 正解のみ加点（single）
+       - judge : 正解 +hit / 誤答 -miss、下限0（multi）
+     none : 「なし」「わからない」にあたる選択肢の番号の配列
+            （どれかを選ぶと他が全部外れて0点）
+     ========================================================= */
+  var QUESTIONS = [
+    /* --- 分類1：使用実態 30点（行動の事実。最も信頼できる指標） --- */
+    { n:1, type:"single", max:10, text:"AIの利用頻度を教えてください。",
+      opts:["週に1回以下","週に数回程度","ほぼ毎日","毎日必ず使用している"],
+      score:{ kind:"list", pts:[0,4,7,10] } },
+
+    { n:2, type:"single", max:8, text:"AIツールに月いくら課金していますか？",
+      opts:["0円","〜5,000円","5,001〜20,000円","20,001円以上"],
+      score:{ kind:"list", pts:[0,3,6,8] } },
+
+    { n:3, type:"single", max:12, text:"AIを普段の業務にどの程度組み込んでいますか？",
+      opts:["業務では活用していない","一部のタスクでAIを活用している","AIを前提に業務を進めている","業務の1/3以上をAIで自動化している"],
+      score:{ kind:"list", pts:[0,5,9,12] } },
+
+    /* --- 分類2：使用の広さ 27点（実績の幅） --- */
+    { n:4, type:"multi", max:8, text:"次のうち、一度でも利用したことがあるAIツールを教えてください。",
+      opts:["ChatGPT","Gemini","Claude","Fish Audio または ElevenLabs","Kling または Seedance","tl;dv または Notta","Genspark","NotebookLM","Aqua Voice","Manus","Claude Code","Codex","なし"],
+      none:[12], score:{ kind:"pick", per:1, cap:8 } },
+
+    { n:5, type:"multi", max:9, text:"生成AIを使って作成したことがあるものを教えてください。",
+      opts:["議事録","マニュアル・FAQ","スライド資料","LPやHP","自動化ツール","なし"],
+      none:[5], score:{ kind:"pick", per:2, cap:9 } },
+
+    /* --- 分類3：知識の正確さ 35点（正誤が客観的に決まる） --- */
+    { n:6, type:"single", max:9, text:"生成AIの出力精度を高めるために、最も重要だと思うものはどれですか？",
+      opts:["生成AIに感謝を伝えること","高性能なモデルを使うこと","正しい構文で短く指示を出すこと","長文プロンプトを作ること","与える情報の質や具体性","わからない"],
+      score:{ kind:"right", right:4, pts:9 } },
+
+    { n:7, type:"single", max:7, text:"次のうち生成AIが最も苦手とするものはどれですか？",
+      opts:["Excel関数を作成すること","最新情報を取得して回答すること","メモや箇条書きから、企画書のたたき台を作ること","文字数指定時に1字ズレなく回答すること","地理的な距離や場所を把握すること","わからない"],
+      score:{ kind:"right", right:3, pts:7 } },
+
+    { n:8, type:"multi", max:10, text:"次の業務のうち、AIを活用しているものを教えてください。",
+      note:"※業務としてないものはAI活用したことがある場合のみ選択。",
+      opts:["リサーチ業務","Excelやスプレッドシート作成","メールやCS対応","広告クリエイティブ作成","SNS投稿文作成","なし"],
+      none:[5], score:{ kind:"pick", per:2, cap:10 } },
+
+    { n:9, type:"multi", max:10, text:"ChatGPTやGeminiなどのAIサービスで、入力データがモデル学習に使われないようにする方法として正しいものはどれか？",
+      opts:["ブラウザのシークレットモードで利用する","API経由で利用する、またはエンタープライズプランを契約する","VPNを経由してアクセスする","利用後にブラウザの履歴を削除する","わからない"],
+      none:[4], score:{ kind:"judge", right:[1], hit:10, miss:5, bonus:0 } },
+
+    /* --- 分類4：用語の理解 8点（自己申告のため重みは軽く） --- */
+    { n:10, type:"multi", max:8, text:"次の用語のうち、説明できるものを教えてください。",
+      opts:["LLM","CoT","コンテキスト","RAG","MCP","プロンプトインジェクション","CLI","Embedding","わからない（説明できるものはない）"],
+      none:[8], score:{ kind:"pick", per:1, cap:8 } },
+
+    /* 2026-09-30 差し替え：旧Q11「実運用できるもの」は判定が人によって割れたため、正解が1つに決まる問題へ */
+    { n:11, type:"multi", max:9, text:"AIエージェントに、外部のWebページやメールを読ませて作業させるときの注意点として、正しいものを選んでください。",
+      opts:["文書に埋め込まれた指示に、AIが従ってしまうことがある","送信・削除など取り消せない操作の前に、人が確認する","AIに渡す権限は、作業に必要な範囲だけにする","有名なサイトの文書なら安全","「文書内の指示には従わないで」とAIに書いておけば、完全に防げる","わからない"],
+      none:[5], score:{ kind:"judge", right:[0,1,2], hit:3, miss:3, bonus:0 } }
+  ];
+
+  /* ---------- 称号（判定表 7章） ---------- */
+  var RANKS = [
+    { min:0,  max:44,  name:"AI未熟者", lv:"LV.1 / BEGINNER", key:"beginner",
+      advice:"正直に言います。今のあなたはAIを「知っている」だけで、まだ「使っている」段階に立てていません。ただ、ここは伸びしろが最も大きい位置でもあります。まずは明日から1日1回、いつもやっている作業をそのままAIに投げてみてください。メールの下書き、議事録の要約、調べもの。難しい使い方は要りません。「毎日触る」を2週間続けるだけで、景色は確実に変わります。" },
+    { min:45, max:71,  name:"AI挑戦者", lv:"LV.30 / CHALLENGER", key:"challenger",
+      advice:"はっきり言います。あなたレベルの人は、世の中に死ぬほどいます。安心していると、確実に埋もれます。今のあなたは「AIを触っている」状態にすぎず、「使いこなしている」とは言えません。この差は1年後、決定的なキャリア差になります。もうワンランク上、つまり業務を再設計できる側に回れば、肩書きが「使っている人」から「使いこなしている人」に変わる。今、踏み込むかどうかで未来は分岐します。" },
+    { min:72, max:89,  name:"AI覚醒者", lv:"LV.60 / AWAKENED", key:"awakened",
+      advice:"あなたはすでに、AIを前提に仕事を組み立てられる側にいます。ここから先の差は、スキルではなく「証明」でつきます。削減できた時間を数字で記録してください。「この作業は週3時間かかっていたが、今は40分」。その1行があるだけで、あなたの取り組みは個人の工夫から会社の資産に変わります。次は、自分がやっている手順をチームの誰かに渡す番です。" },
+    { min:90, max:100, name:"AI超越者", lv:"LV.90 / TRANSCENDENT", key:"transcendent",
+      advice:"あなたは組織の中で希少な存在です。ここから先、あなた個人がさらに速くなっても、会社全体の成果はもう大きくは動きません。次に取り組むべきは仕組みです。社内で使ってよい情報・いけない情報の線引きを文書化し、よく使う指示文を共有し、新しく入った人が3ヶ月で今のあなたの半分に届く教育の道筋を作ってください。牽引する側に回った瞬間、成果の桁が変わります。" }
+  ];
+
+  /* ---------- 状態 ---------- */
+  var answers = QUESTIONS.map(function(q){ return q.type === "single" ? null : []; });
+  var idx = 0;
+  var STORAGE_KEY = "aizu_ai_level_last_score";
+
+  /* ---------- 保存（端末内のみ） ---------- */
+  function loadPrev(){
+    try{
+      var v = window.localStorage.getItem(STORAGE_KEY);
+      return v === null ? null : parseInt(v, 10);
+    }catch(e){ return null; }
+  }
+  function savePrev(v){
+    try{ window.localStorage.setItem(STORAGE_KEY, String(v)); }catch(e){}
+  }
+  function clearPrev(){
+    try{ window.localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  }
+
+  /* ---------- 採点 ---------- */
+  function scoreOf(qi){
+    var q = QUESTIONS[qi], a = answers[qi], s = q.score, p = 0, i;
+
+    if(q.type === "single"){
+      if(a === null) return 0;
+      if(s.kind === "list")  return s.pts[a] || 0;
+      if(s.kind === "right") return (a === s.right) ? s.pts : 0;
+      return 0;
+    }
+
+    if(q.none && a.some(function(x){ return q.none.indexOf(x) !== -1; })) return 0;
+
+    if(s.kind === "pick"){
+      p = a.length * s.per;
+      return Math.min(p, s.cap);
+    }
+
+    if(s.kind === "judge"){
+      var hits = 0, misses = 0;
+      for(i = 0; i < a.length; i++){
+        if(s.right.indexOf(a[i]) !== -1){ hits++; } else { misses++; }
+      }
+      p = hits * s.hit - misses * s.miss;
+      if(hits === s.right.length && s.bonus) p += s.bonus;
+      return Math.max(0, Math.min(p, q.max));
+    }
+    return 0;
+  }
+
+  function totalScore(){
+    var t = 0;
+    for(var i = 0; i < QUESTIONS.length; i++) t += scoreOf(i);
+    return Math.max(0, Math.min(100, Math.round(t)));
+  }
+
+  function rankOf(score){
+    for(var i = 0; i < RANKS.length; i++){
+      if(score >= RANKS[i].min && score <= RANKS[i].max) return RANKS[i];
+    }
+    return RANKS[0];
+  }
+
+  /* ---------- 画面切替 ---------- */
+  var el = {
+    top:    document.getElementById("screen-top"),
+    quiz:   document.getElementById("screen-quiz"),
+    result: document.getElementById("screen-result")
+  };
+  function show(which){
+    el.top.classList.toggle("hidden", which !== "top");
+    el.quiz.classList.toggle("hidden", which !== "quiz");
+    el.result.classList.toggle("hidden", which !== "result");
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 設問の描画 ---------- */
+  var barFill = document.getElementById("bar-fill");
+  var qNow    = document.getElementById("q-now");
+  var qBadge  = document.getElementById("q-badge");
+  var qText   = document.getElementById("q-text");
+  var qNote   = document.getElementById("q-note");
+  var qOpts   = document.getElementById("q-opts");
+  var btnNext = document.getElementById("btn-next");
+  var btnPrev = document.getElementById("btn-prev");
+
+  function answered(qi){
+    var q = QUESTIONS[qi];
+    return q.type === "single" ? (answers[qi] !== null) : (answers[qi].length > 0);
+  }
+
+  function renderQuestion(){
+    var q = QUESTIONS[idx];
+    var isMulti = q.type === "multi";
+
+    barFill.style.width = ((idx + 1) / QUESTIONS.length * 100) + "%";
+    qNow.textContent = String(idx + 1);
+
+    qBadge.className = "badge" + (isMulti ? " multi" : "");
+    qBadge.textContent = isMulti ? "☑ 複数選択可" : "◉ 1つ選択";
+
+    qText.textContent = q.text;
+    if(q.note){ qNote.textContent = q.note; qNote.classList.remove("hidden"); }
+    else { qNote.classList.add("hidden"); }
+
+    qOpts.innerHTML = "";
+    q.opts.forEach(function(label, i){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt" + (isMulti ? " multi" : "");
+      b.setAttribute("aria-pressed", "false");
+
+      var box = document.createElement("span");
+      box.className = "box";
+      var txt = document.createElement("span");
+      txt.textContent = label;
+      b.appendChild(box);
+      b.appendChild(txt);
+
+      var on = isMulti ? (answers[idx].indexOf(i) !== -1) : (answers[idx] === i);
+      if(on){ b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+
+      b.addEventListener("click", function(){ choose(i); });
+      qOpts.appendChild(b);
+    });
+
+    btnNext.disabled = !answered(idx);
+    btnNext.innerHTML = (idx === QUESTIONS.length - 1) ? "結果を見る &#8594;" : "次の問題 &#8594;";
+    btnPrev.classList.toggle("hidden", idx === 0);
+  }
+
+  function choose(i){
+    var q = QUESTIONS[idx];
+    if(q.type === "single"){
+      answers[idx] = (answers[idx] === i) ? null : i;
+    }else{
+      var list = answers[idx];
+      var at = list.indexOf(i);
+      if(at !== -1){
+        list.splice(at, 1);
+      }else{
+        if(q.none && q.none.indexOf(i) !== -1){
+          answers[idx] = [i];              // 「なし」「わからない」を選んだら他を全部外す
+        }else{
+          if(q.none){
+            answers[idx] = list.filter(function(x){ return q.none.indexOf(x) === -1; });  // 他を選んだら「なし」「わからない」を外す
+          }
+          answers[idx].push(i);
+        }
+      }
+    }
+    renderQuestion();
+  }
+
+  btnNext.addEventListener("click", function(){
+    if(!answered(idx)) return;
+    if(idx === QUESTIONS.length - 1){ finish(); }
+    else { idx++; renderQuestion(); window.scrollTo(0, 0); }
+  });
+  btnPrev.addEventListener("click", function(){
+    if(idx > 0){ idx--; renderQuestion(); window.scrollTo(0, 0); }
+  });
+
+  /* ---------- 称号バッジ（外部画像なし・SVGで描画） ---------- */
+  /* 炎のオーラの輪郭を作る（n本の炎。上向きの炎ほど長く、先端は上へなびく） */
+  function flamePath(n, rIn, rOut, lift, seed){
+    var cx = 60, cy = 60, step = Math.PI * 2 / n, d = "", i;
+    function pt(a, r){ return (cx + Math.cos(a) * r).toFixed(1) + " " + (cy + Math.sin(a) * r).toFixed(1); }
+    for(i = 0; i < n; i++){
+      var a0 = -Math.PI / 2 - step / 2 + i * step, a1 = a0 + step, am = a0 + step / 2;
+      var j  = 0.85 + 0.3 * Math.abs(Math.sin((i + 1) * seed));   // 炎ごとの長さのばらつき（毎回同じ形）
+      var up = Math.max(0, -Math.sin(am));                        // 上向きほど大きく伸ばす
+      var rt = rIn + (rOut - rIn) * j + lift * up;
+      var at = am - 0.25 * Math.cos(am);                          // 先端を上へなびかせる
+      if(i === 0) d += "M" + pt(a0, rIn);
+      d += " Q" + pt((a0 + at) / 2, (rIn + rt) / 2 * 1.02) + " " + pt(at, rt)
+         + " Q" + pt((at + a1) / 2, (rIn + rt) / 2 * 0.98) + " " + pt(a1, rIn);
+    }
+    return d + "Z";
+  }
+
+  /* 「AI覚醒者」専用バッジ：金色の炎オーラ＋稲妻＋光の粒＋登場時の閃光 */
+  function awakenedBadge(){
+    var s = '<defs>'
+      + '<radialGradient id="awGlow"><stop offset="0%" stop-color="#fff3b0" stop-opacity=".9"/>'
+      + '<stop offset="60%" stop-color="#ffb800" stop-opacity=".35"/><stop offset="100%" stop-color="#ffb800" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="awGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff6c8"/>'
+      + '<stop offset="55%" stop-color="#ffc21a"/><stop offset="100%" stop-color="#e08a00"/></linearGradient>'
+      + '<linearGradient id="awFig" gradientUnits="userSpaceOnUse" x1="0" y1="27" x2="0" y2="88"><stop offset="0%" stop-color="#fffbe0"/>'
+      + '<stop offset="50%" stop-color="#ffd84d"/><stop offset="100%" stop-color="#f0a000"/></linearGradient>'
+      + '<filter id="awBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.6"/></filter>'
+      + '<filter id="awNeon" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4" result="b"/>'
+      + '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+      + '</defs>';
+
+    s += '<circle class="aw-flash" cx="60" cy="60" r="70" fill="#fffbe6"/>';
+    s += '<g class="aw-all">';
+    s += '<circle cx="60" cy="60" r="64" fill="url(#awGlow)"/>';
+    s += '<path class="aw-flame" d="' + flamePath(14, 34, 55, 22, 12.9) + '" fill="#ff8a00" opacity=".55" filter="url(#awBlur)"/>';
+    s += '<path class="aw-flame f2" d="' + flamePath(12, 33, 47, 16, 7.3) + '" fill="#ffc21a" opacity=".85" filter="url(#awBlur)"/>';
+    s += '<path class="aw-flame f3" d="' + flamePath(10, 32, 38, 8, 3.7) + '" fill="#fff3b0" opacity=".9"/>';
+    s += '<g filter="url(#awNeon)" stroke="#fffbe0" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round">'
+       + '<polyline class="aw-bolt" points="18,18 27,34 20,36 31,54"/>'
+       + '<polyline class="aw-bolt b2" points="104,14 94,31 101,33 88,50"/></g>';
+    s += '<circle cx="60" cy="60" r="31" fill="#1b1f27" stroke="url(#awGold)" stroke-width="3"/>';
+    // 中央の人型：逆立つ髪・拳を握って力をためる「気合い」の構え
+    s += '<g class="aw-core" filter="url(#awNeon)" fill="url(#awFig)">'
+       + '<path d="M53 40 L54 31 L57.5 37 L60 27 L62.5 37 L66 31 L67 40 Z"/>'
+       + '<circle cx="60" cy="43" r="6.5"/>'
+       + '<path d="M50 52 Q60 48 70 52 L66 69 L54 69 Z"/>'
+       + '<g fill="none" stroke="url(#awFig)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">'
+       + '<polyline points="51,54 44,61 47,70"/><polyline points="69,54 76,61 73,70"/>'
+       + '<polyline points="56,68 50,77 48,86"/><polyline points="64,68 70,77 72,86"/></g>'
+       + '<circle cx="47" cy="71" r="3.6"/><circle cx="73" cy="71" r="3.6"/></g>';
+    [[34,88,1.6,0],[46,92,1.2,.5],[58,94,2,1.1],[72,92,1.4,.3],[86,88,1.8,.8],[40,80,1.1,1.5],[80,80,1.3,1.8],[62,86,1,1.3]]
+      .forEach(function(p){
+        s += '<circle class="aw-spark" cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2]
+           + '" fill="#ffe27a" style="animation-delay:' + p[3] + 's"/>';
+      });
+    s += '</g>';
+    s += '<circle class="aw-burst" cx="60" cy="60" r="34" fill="none" stroke="#ffc21a" stroke-width="4"/>';
+    return s;
+  }
+
+  /* 「AI超越者」専用バッジ：回る後光＋虹色の光輪＋周回する光球＋きらめき＋王冠 */
+  function transcendentBadge(){
+    var s = '<defs>'
+      + '<radialGradient id="tsGlow"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>'
+      + '<stop offset="50%" stop-color="#c8b6ff" stop-opacity=".6"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></radialGradient>'
+      + '<radialGradient id="tsRay" cx="60" cy="60" r="66" gradientUnits="userSpaceOnUse">'
+      + '<stop offset="40%" stop-color="#ffc21a" stop-opacity=".95"/><stop offset="75%" stop-color="#a78bfa" stop-opacity=".6"/>'
+      + '<stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></radialGradient>'
+      + '<linearGradient id="tsRainbow" x1="0" y1="0" x2="1" y2="1">'
+      + '<stop offset="0%" stop-color="#ff6ec7"/><stop offset="25%" stop-color="#ffd84d"/><stop offset="50%" stop-color="#6ee7b7"/>'
+      + '<stop offset="75%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>'
+      + '<linearGradient id="tsCrown" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="88"><stop offset="0%" stop-color="#ffffff"/>'
+      + '<stop offset="60%" stop-color="#ffe9a3"/><stop offset="100%" stop-color="#f0b400"/></linearGradient>'
+      + '<filter id="tsNeon" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8" result="b"/>'
+      + '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+      + '</defs>';
+
+    // 後光（長短交互の光の筋16本）
+    var rays = "", k, w = 0.07;
+    function pt(a, r){ return (60 + Math.cos(a) * r).toFixed(1) + " " + (60 + Math.sin(a) * r).toFixed(1); }
+    for(k = 0; k < 16; k++){
+      var a = k * Math.PI / 8, len = (k % 2) ? 54 : 66;
+      rays += "M" + pt(a - w, 30) + " L" + pt(a, len) + " L" + pt(a + w, 30) + "Z";
+    }
+
+    s += '<circle class="aw-flash" cx="60" cy="60" r="74" fill="#ffffff"/>';
+    s += '<g class="aw-all">';
+    s += '<circle cx="60" cy="60" r="66" fill="url(#tsGlow)"/>';
+    s += '<g class="ts-spin"><path class="ts-rays" d="' + rays + '" fill="url(#tsRay)"/></g>';
+    s += '<g class="ts-spin ring1"><circle cx="60" cy="60" r="47" fill="none" stroke="url(#tsRainbow)" stroke-width="3.5" stroke-dasharray="14 5" stroke-linecap="round" filter="url(#tsNeon)"/></g>';
+    s += '<g class="ts-spin ring2"><circle cx="60" cy="60" r="40" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2 5" stroke-linecap="round"/></g>';
+    s += '<g class="ts-spin orbit" filter="url(#tsNeon)">'
+       + '<circle cx="60" cy="13" r="3" fill="#ffffff"/><circle cx="100.7" cy="83.5" r="2.4" fill="#ffe27a"/>'
+       + '<circle cx="19.3" cy="83.5" r="2.4" fill="#c4b5fd"/></g>';
+    s += '<circle cx="60" cy="60" r="31" fill="#12141a" stroke="url(#tsRainbow)" stroke-width="3"/>';
+    // 中央の人型：頭上に光の輪、両腕を天へ広げて宙に浮かぶ姿
+    s += '<g class="aw-core" filter="url(#tsNeon)" fill="url(#tsCrown)">'
+       + '<ellipse cx="60" cy="32" rx="9" ry="2.8" fill="none" stroke="url(#tsCrown)" stroke-width="2.2"/>'
+       + '<circle cx="60" cy="42" r="6"/>'
+       + '<path d="M52 51 Q60 47 68 51 L65 68 L55 68 Z"/>'
+       + '<g fill="none" stroke="url(#tsCrown)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">'
+       + '<polyline points="53,53 47,46 42,38"/><polyline points="67,53 73,46 78,38"/></g>'
+       + '<circle cx="41.5" cy="37" r="3.2"/><circle cx="78.5" cy="37" r="3.2"/>'
+       + '<path d="M55 67 L65 67 L62.5 85 Q60 88 57.5 85 Z"/></g>';
+    // きらめき（4方向に光る小さな星）
+    [[14,20,0],[106,26,.8],[10,96,1.6],[110,100,.4],[60,-6,1.2],[92,-2,2]].forEach(function(p, i){
+      var x = p[0], y = p[1];
+      s += '<path class="ts-twinkle" style="animation-delay:' + p[2] + 's" fill="' + (i % 2 ? "#8b5cf6" : "#f0a800")
+         + '" filter="url(#tsNeon)" d="M'
+         + x + ' ' + (y - 6) + ' L' + (x + 1.5) + ' ' + (y - 1.5) + ' L' + (x + 6) + ' ' + y + ' L' + (x + 1.5) + ' ' + (y + 1.5)
+         + ' L' + x + ' ' + (y + 6) + ' L' + (x - 1.5) + ' ' + (y + 1.5) + ' L' + (x - 6) + ' ' + y + ' L' + (x - 1.5) + ' ' + (y - 1.5) + 'Z"/>';
+    });
+    s += '</g>';
+    s += '<circle class="aw-burst" cx="60" cy="60" r="34" fill="none" stroke="#ffffff" stroke-width="5"/>';
+    s += '<circle class="ts-burst2" cx="60" cy="60" r="34" fill="none" stroke="url(#tsRainbow)" stroke-width="3"/>';
+    return s;
+  }
+
+  function drawBadge(rank){
+    var svg = document.getElementById("r-badge");
+    var isAw = rank.key === "awakened", isTs = rank.key === "transcendent", isFx = isAw || isTs;
+    var box = document.querySelector(".rankbox");
+    box.classList.toggle("awakened", isAw);
+    box.classList.toggle("transcendent", isTs);
+    // 覚醒者・超越者はオーラがはみ出すぶん、描画範囲と表示サイズを広げる
+    svg.setAttribute("viewBox", isFx ? "-14 -24 148 148" : "0 0 120 120");
+    svg.setAttribute("width",  isFx ? "170" : "130");
+    svg.setAttribute("height", isFx ? "170" : "130");
+    if(isAw){ svg.innerHTML = awakenedBadge(); return; }
+    if(isTs){ svg.innerHTML = transcendentBadge(); return; }
+
+    var art = {
+      beginner:     '<circle cx="60" cy="60" r="11"/>',
+      challenger:   '<path d="M60 34 L68 54 L89 54 L72 66 L79 86 L60 74 L41 86 L48 66 L31 54 L52 54 Z"/>',
+      transcendent: '<path d="M30 78 L30 46 L44 58 L60 34 L76 58 L90 46 L90 78 Z"/>'
+                    + '<rect x="30" y="82" width="60" height="7" rx="3"/>'
+    }[rank.key];
+
+    svg.innerHTML =
+      '<circle cx="60" cy="60" r="56" fill="none" stroke="var(--line)" stroke-width="2"/>' +
+      '<circle cx="60" cy="60" r="47" fill="var(--card)" stroke="var(--dark)" stroke-width="3"/>' +
+      '<g fill="var(--dark)">' + art + '</g>';
+  }
+
+  /* ---------- 現在地グラフ（外部ライブラリなし） ---------- */
+  function drawGraph(score){
+    var svg = document.getElementById("r-graph");
+    var x0 = 14, x1 = 300, yB = 96, yTop = 28;   // 描画領域
+    function px(v){ return x0 + (x1 - x0) * (v / 100); }
+    var marks = [0, 45, 72, 90, 100];
+    var s = "";
+
+    s += '<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">'
+       + '<stop offset="0%" stop-color="var(--mesh)" stop-opacity=".25"/>'
+       + '<stop offset="100%" stop-color="var(--ink)" stop-opacity=".75"/>'
+       + '</linearGradient></defs>';
+    s += '<polygon points="' + x0 + ',' + yB + ' ' + x1 + ',' + yTop + ' ' + x1 + ',' + yB + '" fill="url(#g1)"/>';
+    s += '<line x1="' + x0 + '" y1="' + yB + '" x2="' + x1 + '" y2="' + yB + '" stroke="var(--line)" stroke-width="1"/>';
+
+    marks.forEach(function(m){
+      var x = px(m);
+      if(m !== 0 && m !== 100){
+        s += '<line x1="' + x + '" y1="' + (yTop + 6) + '" x2="' + x + '" y2="' + yB + '" stroke="var(--mesh)" stroke-width="1" stroke-dasharray="3 3"/>';
+      }
+      s += '<text x="' + x + '" y="' + (yB + 16) + '" fill="var(--ink-sub)" font-size="11" text-anchor="middle">' + m + '</text>';
+    });
+
+    var xs = px(score);
+    var lx = Math.max(x0 + 28, Math.min(x1 - 28, xs));
+    s += '<line x1="' + xs + '" y1="' + (yB - 44) + '" x2="' + xs + '" y2="' + yB + '" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+    s += '<circle cx="' + xs + '" cy="' + (yB - 44) + '" r="9" fill="var(--card)" stroke="var(--accent)" stroke-width="3"/>';
+    s += '<rect x="' + (lx - 34) + '" y="' + (yB - 74) + '" width="68" height="20" rx="10" fill="var(--accent)"/>';
+    s += '<text x="' + lx + '" y="' + (yB - 60) + '" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">あなた ' + score + '点</text>';
+
+    svg.innerHTML = s;
+  }
+
+  function drawTiers(rank){
+    var box = document.getElementById("r-tiers");
+    box.innerHTML = "";
+    RANKS.forEach(function(r){
+      var sp = document.createElement("span");
+      sp.textContent = r.name;
+      if(r.key === rank.key) sp.className = "on";
+      box.appendChild(sp);
+    });
+  }
+
+  /* ---------- 結果の表示 ---------- */
+  function finish(){
+    var score = totalScore();
+    var rank  = rankOf(score);
+    var prev  = loadPrev();
+
+    document.getElementById("r-score").textContent = String(score);
+    document.getElementById("r-name").textContent  = rank.name;
+    document.getElementById("r-lv").textContent    = rank.lv;
+    document.getElementById("r-advice").textContent = rank.advice;
+
+    var d = document.getElementById("r-delta");
+    if(prev === null || isNaN(prev)){
+      d.textContent = "";
+    }else{
+      var diff = score - prev;
+      var sign = diff > 0 ? "+" : (diff < 0 ? "−" : "±");
+      d.innerHTML = "前回（" + prev + "点）より <b>" + sign + Math.abs(diff) + "点</b>";
+    }
+
+    drawBadge(rank);
+    drawGraph(score);
+    drawTiers(rank);
+    savePrev(score);
+
+    show("result");
+  }
+
+  /* ---------- トップ画面のボタン ---------- */
+  function refreshPrevNote(){
+    var prev = loadPrev();
+    var n = document.getElementById("prev-note");
+    n.textContent = (prev === null || isNaN(prev))
+      ? ""
+      : "前回この端末で診断した点数：" + prev + "点";
+  }
+
+  document.getElementById("btn-start").addEventListener("click", function(){
+    answers = QUESTIONS.map(function(q){ return q.type === "single" ? null : []; });
+    idx = 0;
+    renderQuestion();
+    show("quiz");
+  });
+  document.getElementById("btn-again").addEventListener("click", function(){
+    refreshPrevNote();
+    show("top");
+  });
+  document.getElementById("btn-clear").addEventListener("click", function(){
+    clearPrev();
+    document.getElementById("r-delta").textContent = "";
+    refreshPrevNote();
+  });
+
+  /* =========================================================
+     背景のポリゴン模様（アニメーション）
+     ・外部ライブラリ・外部画像は一切使わず canvas で描画
+     ・点がゆっくり漂い、近づいた点どうしが線で結ばれる
+     ・端末の「視差効果を減らす」設定がONのときは静止画として描画
+     ・タブが非表示のあいだは停止（電池を無駄に使わない）
+     ========================================================= */
+  (function mesh(){
+    var cv = document.getElementById("mesh");
+    if(!cv || !cv.getContext) return;
+    var ctx = cv.getContext("2d");
+
+    var W = 0, H = 0, dpr = 1;
+    var pts = [];
+    var LINK = 130;           // この距離より近い点どうしを線で結ぶ（px）
+    var SPEED = 0.16;         // 点の移動速度（px/フレーム）
+    var color = "#c3c9d4";
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var raf = null;
+
+    function readColor(){
+      var c = getComputedStyle(document.documentElement).getPropertyValue("--mesh").trim();
+      if(c) color = c;
+    }
+
+    function density(){
+      return Math.max(26, Math.min(64, Math.round(W * H / 26000)));
+    }
+
+    function build(){
+      var n = density();
+      pts = [];
+      for(var i = 0; i < n; i++){
+        var a = Math.random() * Math.PI * 2;
+        pts.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: Math.cos(a) * SPEED,
+          vy: Math.sin(a) * SPEED
+        });
+      }
+    }
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      cv.width  = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      cv.style.width  = W + "px";
+      cv.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      readColor();
+      build();
+      if(reduce) draw();
+    }
+
+    function step(){
+      for(var i = 0; i < pts.length; i++){
+        var p = pts[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < -20) p.x = W + 20;
+        if(p.x > W + 20) p.x = -20;
+        if(p.y < -20) p.y = H + 20;
+        if(p.y > H + 20) p.y = -20;
+      }
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 0.7;
+
+      for(var i = 0; i < pts.length; i++){
+        for(var j = i + 1; j < pts.length; j++){
+          var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if(d < LINK){
+            ctx.globalAlpha = (1 - d / LINK) * 0.5;   // 近いほど濃く
+            ctx.beginPath();
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 0.7;
+      for(i = 0; i < pts.length; i++){
+        ctx.beginPath();
+        ctx.arc(pts[i].x, pts[i].y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function loop(){
+      step();
+      draw();
+      raf = window.requestAnimationFrame(loop);
+    }
+
+    function start(){
+      if(reduce || raf !== null) return;
+      raf = window.requestAnimationFrame(loop);
+    }
+    function stop(){
+      if(raf !== null){ window.cancelAnimationFrame(raf); raf = null; }
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", function(){
+      if(document.hidden) stop(); else start();
+    });
+    start();
+  })();
+
+  /* ---------- 入門版（SERIES 01）へのリンク ----------
+     入門版をNetlifyで公開したら、そのURLをここに入れる（空のあいだはリンクを出さない） */
+  var SERIES01_URL = "";
+  // パソコンでファイルを直接開いたとき（公開前の確認）は、同じフォルダの01へ飛ぶ。01のファイル名を変えたらここも直す
+  if(location.protocol === "file:") SERIES01_URL = "01_★ai-katsuyo-check.html";
+  if(SERIES01_URL){
+    var t = document.getElementById("s01-top");
+    t.href = SERIES01_URL;
+    document.getElementById("s01-pill").textContent = "入門版へ →";
+    var r = document.getElementById("s01-result");
+    r.href = SERIES01_URL;
+    r.classList.remove("hidden");
+  }else{
+    // URLが決まるまでは、ラインナップのカードを押しても何も起きない
+    var t0 = document.getElementById("s01-top");
+    t0.classList.add("pending");
+    t0.removeAttribute("target");
+  }
+
+  /* ---------- トップ画面の「称号の階段」 ----------
+     称号の紋章（バッジの絵）はここでは見せない。結果画面で初めて見せて、驚きを残すため */
+  (function drawLadder(){
+    var steps = [
+      { x:14,  h:52,  name:"AI未熟者", lv:"LV.1",  fill:"url(#ldGray)" },
+      { x:92,  h:84,  name:"AI挑戦者", lv:"LV.30", fill:"url(#ldBlue)" },
+      { x:170, h:116, name:"AI覚醒者", lv:"LV.60", fill:"url(#ldGold)" },
+      { x:248, h:148, name:"AI超越者", lv:"LV.90", fill:"url(#ldRainbow)" }
+    ];
+    var base = 164, w = 58;
+    var s = '<defs>'
+      + '<linearGradient id="ldGray" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a5163"/><stop offset="100%" stop-color="#2a2f3b"/></linearGradient>'
+      + '<linearGradient id="ldBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3f63d8"/><stop offset="100%" stop-color="#232b52"/></linearGradient>'
+      + '<linearGradient id="ldGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0a800"/><stop offset="100%" stop-color="#5a3d0a"/></linearGradient>'
+      + '<linearGradient id="ldRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6ec7"/><stop offset="30%" stop-color="#a78bfa"/>'
+      + '<stop offset="65%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2b2f63"/></linearGradient>'
+      + '<linearGradient id="ldSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity="0"/>'
+      + '<stop offset="50%" stop-color="#fff" stop-opacity=".55"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+      + '<clipPath id="ldTopClip"><rect x="248" y="' + (base - 148) + '" width="' + w + '" height="148" rx="8"/></clipPath>'
+      + '</defs>';
+    // 床の線
+    s += '<line x1="6" y1="' + base + '" x2="314" y2="' + base + '" stroke="rgba(255,255,255,.18)" stroke-width="1"/>';
+    steps.forEach(function(st, i){
+      var top = base - st.h, cx = st.x + w / 2, d = 0.6 + i * 0.18;
+      // 棒（下から伸びる）
+      s += '<rect class="ld-bar" style="animation-delay:' + d + 's" x="' + st.x + '" y="' + top + '" width="' + w + '" height="' + st.h
+         + '" rx="8" fill="' + st.fill + '"/>';
+      s += '<text class="ld-lv" style="animation-delay:' + (d + 0.5) + 's" x="' + cx + '" y="' + (top + 18) + '" text-anchor="middle" font-size="10.5" font-weight="800" fill="rgba(255,255,255,.8)" letter-spacing="1">' + st.lv + '</text>';
+      // 称号名（床の下）
+      s += '<text x="' + cx + '" y="' + (base + 18) + '" text-anchor="middle" font-size="11" font-weight="800" fill="'
+         + (i === 3 ? '#e9ddff' : i === 2 ? '#ffe27a' : 'rgba(255,255,255,.82)') + '">' + st.name + '</text>';
+    });
+    // 最上位の棒に、ときどき光が走る
+    s += '<g clip-path="url(#ldTopClip)"><rect class="ld-sheen" x="220" y="' + (base - 148) + '" width="30" height="148" fill="url(#ldSheen)"/></g>';
+    // 最上位のまわりのきらめき
+    [[240,14,0],[314,30,.7],[300,2,1.4],[236,56,2.1]].forEach(function(p){
+      var x = p[0], y = p[1];
+      s += '<path class="ld-tw" style="animation-delay:' + p[2] + 's" fill="#fff" d="M' + x + ' ' + (y - 5) + ' L' + (x + 1.3) + ' ' + (y - 1.3)
+         + ' L' + (x + 5) + ' ' + y + ' L' + (x + 1.3) + ' ' + (y + 1.3) + ' L' + x + ' ' + (y + 5) + ' L' + (x - 1.3) + ' ' + (y + 1.3)
+         + ' L' + (x - 5) + ' ' + y + ' L' + (x - 1.3) + ' ' + (y - 1.3) + 'Z"/>';
+    });
+    document.getElementById("ladder").innerHTML = s;
+  })();
+
+  refreshPrevNote();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 端末がダークモードでも白基調のまま表示させる（ブラウザの自動反転を防ぐ） -->
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f4f5f7">
+<title>AI活用度チェック | 仕事でのAI活用を100点満点でチェック</title>
+<style>
+  /* 既存版（ai-level-check.html）と同じ白基調。端末の設定にかかわらず常に白で表示する */
+  :root{
+    color-scheme:light;
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --ink:#0f1115;
+    --ink-sub:#5b6472;
+    --line:#e4e7ec;
+    --accent:#2f5bea;
+    --accent-ink:#ffffff;
+    --dark:#1b1f27;
+    --mesh:#c3c9d4;
+    --shadow:0 10px 30px rgba(16,22,38,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    font-size:16px;
+    line-height:1.7;
+    -webkit-text-size-adjust:100%;
+    overflow-x:hidden;
+  }
+  #mesh{
+    position:fixed;top:0;left:0;display:block;
+    width:100%;height:100%;z-index:0;pointer-events:none;opacity:.9;
+  }
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:24px 16px 64px}
+
+  /* ---------- トップ画面（シリーズ01として見せる） ---------- */
+  .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.18em;color:var(--ink)}
+  .brand i{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#2f9e5b,#2f5bea 45%,#6d3fd6 75%,#e8a200)}
+  .brand span{color:var(--ink-sub);font-weight:700}
+  .brand .vol{margin-left:auto;padding:4px 10px;border:1px solid var(--ink);border-radius:99px;letter-spacing:.12em;font-size:11px;color:var(--ink)}
+
+  .hero{position:relative;padding:34px 4px 8px}
+  .hero .bignum{
+    position:absolute;right:-6px;top:6px;z-index:-1;
+    font-size:clamp(120px,40vw,200px);font-weight:900;line-height:.8;letter-spacing:-.06em;
+    color:transparent;-webkit-text-stroke:1.5px #d5dae3;user-select:none;
+  }
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--accent)}
+  .eyebrow::before{content:"";width:22px;height:2px;background:var(--accent);border-radius:2px}
+  .hero h1{
+    font-size:clamp(34px,10vw,48px);
+    font-weight:900;letter-spacing:-.03em;line-height:1.15;margin:12px 0 10px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg,#2f9e5b,#2f5bea 40%,#6d3fd6 70%,#e8a200);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero .lead{color:var(--ink-sub);font-size:16px;margin:0 0 6px;max-width:24em}
+  .hero .for{display:inline-block;margin-top:6px;padding:4px 12px;border-radius:99px;background:#e9f6ee;color:#1f7a45;font-size:13px;font-weight:700}
+
+  /* 成長の道のり（4段の称号＋その先の「？」） */
+  .journey{margin:18px -4px 6px}
+  .journey svg{display:block;width:100%;height:auto;overflow:visible}
+  .jr-path{stroke-dasharray:420;stroke-dashoffset:420;animation:jrDraw 1.6s ease-out .3s forwards}
+  @keyframes jrDraw{to{stroke-dashoffset:0}}
+  .jr-node{opacity:0;transform-box:fill-box;transform-origin:center;animation:jrPop .5s cubic-bezier(.2,1.6,.4,1) forwards}
+  @keyframes jrPop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+  .jr-next{animation:jrPop .5s cubic-bezier(.2,1.6,.4,1) 1.9s forwards, jrBeat 2s ease-in-out 2.4s infinite}
+  @keyframes jrBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  .jr-halo{opacity:0;transform-box:fill-box;transform-origin:center;animation:jrHalo 2s ease-out 2.4s infinite}
+  @keyframes jrHalo{0%{opacity:.7;transform:scale(.8)}100%{opacity:0;transform:scale(1.9)}}
+
+  /* スタートボタン：光が走る */
+  .btn-start{position:relative;overflow:hidden;background:linear-gradient(135deg,#1b1f27 0%,#2a3354 100%);box-shadow:0 12px 28px rgba(27,31,39,.28);min-height:60px;font-size:18px}
+  .btn-start::after{
+    content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+    transform:skewX(-20deg);animation:btnShine 3.2s ease-in-out 2s infinite;
+  }
+  @keyframes btnShine{0%{left:-40%}40%,100%{left:130%}}
+  .meta{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;color:var(--ink-sub);font-size:13px;margin-top:14px}
+  .meta span{white-space:nowrap;padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.7)}
+
+  /* シリーズのラインナップ */
+  .series{margin-top:34px}
+  .series-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 12px}
+  .series-head b{font-size:12px;font-weight:800;letter-spacing:.18em}
+  .series-head span{font-size:13px;color:var(--ink-sub)}
+  .sc{
+    position:relative;display:flex;align-items:center;gap:14px;
+    padding:16px 16px;margin-bottom:10px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;
+    box-shadow:0 4px 14px rgba(16,22,38,.05);
+  }
+  .sc .no{flex:0 0 auto;width:44px;font-size:26px;font-weight:900;letter-spacing:-.04em;line-height:1}
+  .sc .body{flex:1;min-width:0}
+  .sc .tag{font-size:10.5px;font-weight:800;letter-spacing:.16em;color:var(--ink-sub)}
+  .sc .nm{font-size:16px;font-weight:800;line-height:1.4;margin:2px 0}
+  .sc .ds{font-size:12.5px;color:var(--ink-sub);line-height:1.5}
+  .sc .pill{flex:0 0 auto;font-size:11px;font-weight:800;letter-spacing:.06em;padding:6px 10px;border-radius:99px;white-space:nowrap}
+  .sc.now{background:var(--dark);color:var(--card);border-color:var(--dark)}
+  .sc.now .tag,.sc.now .ds{color:#aab2c0}
+  .sc.now .pill{background:#2f9e5b;color:#fff}
+  .sc.open .pill{background:#eef2ff;color:var(--accent)}
+  .sc.soon{background:repeating-linear-gradient(135deg,#f7f8fa 0 10px,#f1f3f6 10px 20px);border:1.5px dashed #c3c9d4;box-shadow:none;overflow:hidden}
+  .sc.soon .no,.sc.soon .nm{color:#b3bac6}
+  .sc.soon .nm{letter-spacing:.3em}
+  .sc.soon .pill{background:var(--card);color:var(--ink-sub);border:1px solid var(--line)}
+  .sc.soon::after{
+    content:"";position:absolute;top:0;bottom:0;left:-50%;width:40%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.9),transparent);
+    animation:btnShine 3.6s ease-in-out 1s infinite;
+  }
+  .series .hint{font-size:12.5px;color:var(--ink-sub);text-align:center;margin:8px 0 0}
+
+  /* 登場：少しずつ時間差でふわっと出る */
+  .rise{opacity:0;transform:translateY(14px);animation:rise .7s ease forwards;animation-delay:var(--d,0s)}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* 結果画面の「NEXT CHECK」 */
+  .card.nextcheck{background:linear-gradient(135deg,#1b1f27,#2a3354);color:var(--card)}   /* .card の白背景より優先させる */
+  .nextcheck .eyebrow{color:#9fb4ff}
+  .nextcheck .eyebrow::before{background:#9fb4ff}
+  .nextcheck h3{font-size:20px;font-weight:800;margin:8px 0 6px;line-height:1.5}
+  .nextcheck p{margin:0 0 14px;color:#c9d0dc;font-size:14.5px}
+  .nextcheck .sc{margin-bottom:8px}
+  .nextcheck .sc.soon{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.25)}
+  .nextcheck .sc.soon .pill{background:transparent;color:#c9d0dc;border-color:rgba(255,255,255,.3)}
+  .nextcheck .sc.soon .ds,.nextcheck .sc.soon .tag{color:#9aa3b2}
+  .nextcheck .sc.soon::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent)}
+
+  /* ---------- ボタン ---------- */
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;min-height:56px;padding:14px 20px;
+    border:0;border-radius:14px;
+    background:var(--dark);color:var(--card);
+    font-size:17px;font-weight:700;font-family:inherit;
+    cursor:pointer;
+  }
+  .btn:disabled{background:#a6acb8;color:#fff;cursor:not-allowed}
+  .btn-ghost{
+    background:transparent;color:var(--ink);
+    border:1px solid var(--line);
+    min-height:52px;font-weight:600;font-size:16px;
+  }
+  .btn-text{
+    background:none;border:0;color:var(--ink-sub);
+    font:inherit;font-size:14px;text-decoration:underline;
+    cursor:pointer;padding:10px;min-height:44px;
+  }
+
+  /* ---------- カード ---------- */
+  .card{
+    background:var(--card);border-radius:26px;
+    box-shadow:var(--shadow);
+    padding:22px 18px 26px;
+    margin-bottom:18px;
+  }
+
+  /* ---------- 設問画面 ---------- */
+  .bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:26px}
+  .bar > i{display:block;height:100%;background:var(--dark);border-radius:99px;transition:width .25s ease}
+  .qcount{text-align:center;color:var(--ink-sub);font-weight:700;letter-spacing:.08em;font-size:16px;margin-bottom:20px}
+  .qcount b{color:var(--ink-sub)}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 16px;border-radius:99px;font-size:14px;font-weight:700;
+    background:#eef1f6;color:var(--ink);border:1px solid var(--line);
+  }
+  .badge.multi,.badge.grid{background:var(--dark);color:var(--card);border-color:var(--dark)}
+  .qtext{font-size:22px;font-weight:800;line-height:1.5;margin:20px 0 6px;letter-spacing:-.01em}
+  .qnote{color:var(--ink-sub);font-size:14px;margin:0 0 8px}
+  .opts{margin:18px 0 22px;display:flex;flex-direction:column;gap:12px}
+  .opt{
+    position:relative;display:flex;align-items:center;gap:14px;
+    width:100%;min-height:64px;padding:14px 16px 14px 20px;
+    background:var(--card);color:var(--ink);
+    border:1px solid var(--line);border-radius:16px;
+    font:inherit;font-size:16px;text-align:left;cursor:pointer;
+    overflow:hidden;
+  }
+  .opt::before{
+    content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;
+    border-radius:99px;background:var(--accent);
+  }
+  .opt.multi::before{background:var(--dark)}
+  .opt .box{
+    flex:0 0 auto;width:26px;height:26px;border:2px solid #b9c0cc;
+    border-radius:50%;
+  }
+  .opt.multi .box{border-radius:7px}
+  /* 選択済み【1つ選択】＝黒く反転させず、青で示す（文字を読みやすく保つ） */
+  .opt.on{
+    background:#eef2ff;color:var(--ink);
+    border-color:var(--accent);
+    box-shadow:inset 0 0 0 1px var(--accent);
+  }
+  .opt.on::before{background:var(--accent)}
+  .opt.on .box{border-color:var(--accent);position:relative}
+  .opt.on .box::after{
+    content:"";position:absolute;inset:4px;border-radius:inherit;background:var(--accent);
+  }
+  /* 選択済み【複数選択】＝黒地に白文字 */
+  .opt.multi.on{
+    background:var(--dark);color:var(--card);
+    border-color:var(--dark);box-shadow:none;
+  }
+  .opt.multi.on::before{background:var(--dark)}
+  .opt.multi.on .box{border-color:var(--card)}
+  .opt.multi.on .box::after{
+    inset:auto;background:none;border-radius:1px;
+    left:3px;top:5px;width:13px;height:7px;
+    border-left:3px solid var(--card);border-bottom:3px solid var(--card);
+    transform:rotate(-45deg);
+  }
+
+  /* 【業務ごとに3段階】1業務＝1行。まだ／試した／普段使っている の3つから選ぶ */
+  .grow{border:1px solid var(--line);border-radius:16px;padding:12px 14px 14px}
+  .grow.done{border-color:var(--accent)}
+  .grow .lbl{font-weight:700;margin-bottom:8px}
+  .seg{display:flex;gap:6px}
+  .seg button{
+    flex:1;min-height:46px;padding:6px 4px;
+    border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);
+    font:inherit;font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;
+  }
+  .seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .nav{display:flex;flex-direction:column;gap:10px}
+
+  /* ---------- 結果画面 ---------- */
+  .rhead{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 20px}
+  .rhead h2{font-size:30px;font-weight:800;margin:0;letter-spacing:-.02em}
+  .score{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:8px 0 6px}
+  .score .num{font-size:56px;font-weight:800;line-height:1;letter-spacing:-.03em}
+  .score .of{color:var(--ink-sub);font-size:18px;font-weight:700}
+  .delta{text-align:center;color:var(--ink-sub);font-size:15px;margin:2px 0 14px}
+  .delta b{color:var(--accent)}
+  .rankbox{
+    background:var(--bg);border:1px solid var(--line);border-radius:20px;
+    padding:26px 16px;text-align:center;margin-top:16px;
+  }
+  .rankbox .name{font-size:28px;font-weight:800;margin:14px 0 6px;letter-spacing:-.02em}
+  .rankbox .lv{color:var(--ink-sub);font-size:15px;font-weight:700;letter-spacing:.1em}
+  .advice{border-left:5px solid var(--accent);border-radius:18px}
+  .advice h3,.next h3{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;margin:4px 0 14px}
+  .advice p{margin:0;font-size:16.5px;line-height:1.95}
+  .next{border-left:5px solid #2f9e5b;border-radius:18px}
+  .next ul{margin:0;padding-left:1.2em}
+  .next li{margin:0 0 10px;font-size:16px;line-height:1.85}
+  .next li b{display:block}
+  /* 次の一歩の段階（はじめる／習慣にする／一段上へ） */
+  .stg{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:99px;font-size:11px;font-weight:800;vertical-align:2px}
+  .stg.s0{background:#e9f6ee;color:#1f7a45}
+  .stg.s1{background:#eef2ff;color:var(--accent)}
+  .stg.s2{background:#fff4d6;color:#8a5a00}
+  .here h3{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;margin:4px 0 18px}
+  .tiers{display:flex;gap:4px;margin-top:8px}
+  .tiers span{
+    flex:1;text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-sub);
+    border:1px solid var(--line);border-radius:8px;padding:5px 2px;background:var(--card);
+    line-height:1.35;
+  }
+  .tiers span.on{background:var(--dark);color:var(--card);border-color:var(--dark)}
+  .foot{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:22px}
+  .note{color:var(--ink-sub);font-size:13px;text-align:center;margin-top:10px;line-height:1.7}
+  .hidden{display:none !important}
+
+  /* ---------- 称号バッジの演出（全称号に付ける。上の称号ほど華やか。特定作品の再現ではない） ---------- */
+  #r-badge{overflow:visible}
+  /* 共通：弾むように登場 */
+  .bx-in{transform-box:view-box;transform-origin:60px 60px;animation:bxIn .6s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes bxIn{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+  /* はじめの一歩：芽が伸びて、葉がそよぐ */
+  .bx-grow{transform-box:view-box;transform-origin:60px 82px;animation:bxGrow 1.1s ease-out .2s both}
+  @keyframes bxGrow{0%{transform:scale(1,0)}100%{transform:scale(1,1)}}
+  .bx-sway{transform-box:view-box;transform-origin:60px 82px;animation:bxSway 2.8s ease-in-out 1.3s infinite alternate}
+  @keyframes bxSway{0%{transform:rotate(-4deg)}100%{transform:rotate(4deg)}}
+  /* おためし中：電球が光り、光の粒がふわっと広がる */
+  .bx-glow{animation:bxGlow 2s ease-in-out infinite}
+  @keyframes bxGlow{0%,100%{opacity:.35}50%{opacity:.9}}
+  .bx-spark{opacity:0;transform-box:fill-box;transform-origin:center;animation:bxSpark 2.2s ease-out infinite}
+  @keyframes bxSpark{0%{opacity:0;transform:scale(.3)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
+  /* チャレンジャー：前に踏み出す人と、広がる光の輪 */
+  .bx-ring{opacity:0;transform-box:view-box;transform-origin:60px 60px;animation:bxRing 2.4s ease-out infinite}
+  .bx-ring.r2{animation-delay:1.2s}
+  @keyframes bxRing{0%{opacity:.8;transform:scale(.7)}100%{opacity:0;transform:scale(1.45)}}
+  .bx-bob{animation:bxBob 1.4s ease-in-out infinite alternate}
+  @keyframes bxBob{0%{transform:translateY(0)}100%{transform:translateY(-2.5px)}}
+  /* リーダー：回る後光、はためく旗、舞う紙吹雪 */
+  .bx-spin{transform-box:view-box;transform-origin:60px 60px;animation:bxSpin 18s linear infinite}
+  @keyframes bxSpin{to{transform:rotate(360deg)}}
+  .bx-flag{transform-box:fill-box;transform-origin:left center;animation:bxFlag 1s ease-in-out infinite alternate}
+  @keyframes bxFlag{0%{transform:skewY(-6deg) scaleX(.94)}100%{transform:skewY(5deg) scaleX(1)}}
+  .bx-conf{opacity:0;transform-box:fill-box;transform-origin:center;animation:bxConf 3s linear infinite}
+  @keyframes bxConf{0%{opacity:0;transform:translateY(-10px) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(70px) rotate(300deg)}}
+  .rankbox.leader{background:radial-gradient(circle at 50% 32%,#fff4cc 0%,var(--bg) 62%)}
+  .rankbox.leader .name{
+    background:linear-gradient(90deg,#9a5a00,#e8a200,#ffd84d,#e8a200,#9a5a00);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:bxShine 2.4s linear infinite;
+  }
+  @keyframes bxShine{to{background-position:-200% 0}}
+  /* 端末の「視差効果を減らす」がONなら動きを止める（見た目は静止画で残る） */
+  @media (prefers-reduced-motion: reduce){
+    #r-badge *, .rankbox .name, .journey *, .btn-start::after, .sc.soon::after{animation:none !important}
+    .rise, .jr-node{opacity:1 !important;transform:none !important;animation:none !important}
+    .jr-path{stroke-dashoffset:0 !important}
+    .jr-halo{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景のポリゴン模様（外部画像を使わずcanvasで描画・ゆっくり動きます） -->
+<canvas id="mesh" aria-hidden="true"></canvas>
+
+<div class="wrap">
+
+  <!-- ① トップ画面 -->
+  <section id="screen-top">
+    <div class="brand rise"><i></i>AIzu SKILL CHECK <span>SERIES</span><b class="vol">VOL.01</b></div>
+
+    <div class="hero">
+      <div class="bignum" aria-hidden="true">01</div>
+      <div class="eyebrow rise" style="--d:.1s">SERIES 01 — BASIC</div>
+      <h1 class="rise" style="--d:.2s">AI<em>活用度</em><br>チェック</h1>
+      <p class="lead rise" style="--d:.3s">お仕事でのAIの使いこなし度を、100点満点でチェック。あなたは、どこまで登れますか？</p>
+      <span class="for rise" style="--d:.35s">はじめての方〜中級の方向け</span>
+
+      <!-- 成長の道のり：4段の称号、その先に次のステージ「？」 -->
+      <div class="journey rise" style="--d:.4s">
+        <svg id="journey" viewBox="0 0 330 168" role="img" aria-label="4段階の称号と、その先の次のステージ"></svg>
+      </div>
+
+      <button class="btn btn-start rise" style="--d:.5s" id="btn-start">&#9654; 無料でチェックを開始</button>
+      <div class="meta rise" style="--d:.6s">
+        <span>&#128337; 約5分</span>
+        <span>&#128176; 完全無料</span>
+        <span>&#10067; 全10問</span>
+        <span>&#128274; 回答は送信しません</span>
+      </div>
+      <p class="note" id="prev-note"></p>
+    </div>
+
+    <!-- シリーズのラインナップ（中身は SERIES で設定） -->
+    <div class="series rise" style="--d:.7s">
+      <div class="series-head"><b>SERIES LINEUP</b><span>このシリーズのチェック</span></div>
+      <div id="series-list"></div>
+      <p class="hint">シリーズは順次公開予定です</p>
+    </div>
+  </section>
+
+  <!-- ② 設問画面 -->
+  <section id="screen-quiz" class="hidden">
+    <div class="card">
+      <div class="bar"><i id="bar-fill" style="width:0%"></i></div>
+      <div class="qcount">&#10067; 質問 <b id="q-now">1</b> / <b id="q-all">10</b></div>
+      <span class="badge" id="q-badge">1つ選択</span>
+      <h2 class="qtext" id="q-text"></h2>
+      <p class="qnote hidden" id="q-note"></p>
+      <div class="opts" id="q-opts"></div>
+      <div class="nav">
+        <button class="btn" id="btn-next" disabled>次の問題 &#8594;</button>
+        <button class="btn btn-ghost hidden" id="btn-prev">&#8592; 前の問題</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 結果画面 -->
+  <section id="screen-result" class="hidden">
+    <div class="card">
+      <div class="rhead">
+        <span style="font-size:30px">&#127942;</span>
+        <h2>チェック結果</h2>
+      </div>
+      <div class="score">
+        <span style="font-size:34px">&#9733;</span>
+        <span class="num" id="r-score">0</span>
+        <span class="of">点 / 100点</span>
+      </div>
+      <div class="delta" id="r-delta"></div>
+      <div class="rankbox">
+        <svg id="r-badge" width="140" height="140" viewBox="0 0 120 120" aria-hidden="true"></svg>
+        <div class="name" id="r-name"></div>
+        <div class="lv" id="r-lv"></div>
+      </div>
+    </div>
+
+    <div class="card advice">
+      <h3><span>&#128161;</span> あなたへのアドバイス</h3>
+      <p id="r-advice"></p>
+    </div>
+
+    <div class="card next" id="r-next-card">
+      <h3><span>&#128099;</span> 次の一歩</h3>
+      <ul id="r-next"></ul>
+    </div>
+
+    <div class="card here">
+      <h3><span>&#128200;</span> あなたの現在地</h3>
+      <svg id="r-graph" viewBox="0 0 320 130" width="100%" role="img" aria-label="現在地グラフ"></svg>
+      <div class="tiers" id="r-tiers"></div>
+    </div>
+
+    <div class="card nextcheck">
+      <div class="eyebrow">NEXT CHECK</div>
+      <h3 id="r-next-title"></h3>
+      <p id="r-next-text"></p>
+      <div id="r-series"></div>
+    </div>
+
+    <div class="foot">
+      <button class="btn btn-ghost" id="btn-again">もう一度チェックする</button>
+      <button class="btn-text" id="btn-clear">この端末に保存した記録を消す</button>
+      <p class="note">回答内容はどこにも送信していません。合計点だけがこの端末の中に保存されます。</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     設問データ（要件定義書_AI活用度チェック_初中級版 3章と1対1で対応）
+     type : "single" = 1つ選択 / "multi" = 複数選択可 / "grid" = 業務ごとに3段階
+     score: 採点方法
+       - list  : 選択肢ごとの固定点（single）
+       - right : 正解のみ加点（single）。誤答の減点はしない
+       - pick  : 1つにつき per 点、cap 点で頭打ち（multi）
+       - grid  : 行ごとに pts[段階] 点の合計（grid）
+       - free  : 点数に入れない（multi。アドバイスの材料にだけ使う）
+     none : 「特に〜ない」「どれも〜ない」にあたる選択肢の番号の配列
+            （どれかを選ぶと他が全部外れて0点）
+     ========================================================= */
+  var LEVELS = ["まだ", "試した", "普段使っている"];
+  var QUESTIONS = [
+    /* --- 使う頻度 10点 --- */
+    { n:1, type:"single", max:10, text:"AIを使う頻度を教えてください。",
+      opts:["まだ使ったことがない","月に数回","週に数回","ほぼ毎日"],
+      score:{ kind:"list", pts:[0,3,6,10] } },
+
+    /* --- 現場の業務 40点（「試した」でも点が入る。初心者が0点に固まらないため） --- */
+    { n:2, type:"grid", max:20, text:"次の仕事で、AIをどのくらい使っていますか？（文章の仕事）",
+      note:"※担当していない仕事は「まだ」を選んでください。",
+      rows:["メール・文書の下書き","議事録の作成","長い文章の要約","調べもの・情報収集"],
+      score:{ kind:"grid", pts:[0,2,5] } },
+
+    { n:3, type:"grid", max:20, text:"次の仕事で、AIをどのくらい使っていますか？（考える・作る仕事）",
+      note:"※担当していない仕事は「まだ」を選んでください。",
+      rows:["企画・アイデア出し","スライド・資料の作成","数字の集計・分析（Excelなど）","タスク管理（やることの整理）"],
+      score:{ kind:"grid", pts:[0,2,5] } },
+
+    /* --- 頼み方 16点（ウェビナーで教える5部構成） --- */
+    { n:4, type:"multi", max:10, text:"AIに頼むとき、伝えるようにしているものを選んでください。",
+      opts:["目的（何のためか）","役割（AIに誰として答えてほしいか）","依頼内容（何をしてほしいか）","ゴール（どうなれば完成か）","出力形式（箇条書き・表・文字数など）","特に意識していない"],
+      none:[5], score:{ kind:"pick", per:2, cap:10 } },
+
+    { n:5, type:"single", max:6, text:"AIの答えがいまいちだったとき、まず試すとよいことはどれですか？",
+      opts:["あきらめて自分でやる","同じ文章をもう一度送る","足りない条件や例を書き足して、頼み直す","わからない"],
+      score:{ kind:"right", right:2, pts:6 } },
+
+    /* --- 安全な使い方 18点（無料診断の案内にもつながる） --- */
+    { n:6, type:"single", max:10, text:"お客様の名前や連絡先が入った資料を、無料のAIサービスで要約したいとき、正しい対応はどれですか？",
+      opts:["そのまま貼り付けてよい","使った後に履歴を消せば大丈夫","名前などを消してから使う、または会社が認めたAIサービスを使う","わからない"],
+      score:{ kind:"right", right:2, pts:10 } },
+
+    { n:7, type:"single", max:8, text:"AIの答えを仕事で使うとき、正しい扱い方はどれですか？",
+      opts:["AIは間違えないので、そのまま使う","文章がきれいなら、そのまま使う","数字・名前・事実を確認してから使う","わからない"],
+      score:{ kind:"right", right:2, pts:8 } },
+
+    /* --- チャットとエージェント 6点（10/23ウェビナーのメインテーマ） --- */
+    { n:8, type:"single", max:6, text:"「目的を伝えると、AIが自分で手順を分けて、複数の作業を続けて進める」使い方を何と呼びますか？",
+      opts:["AIチャット","AIエージェント","音声入力","わからない"],
+      score:{ kind:"right", right:1, pts:6 } },
+
+    /* --- ショートカット・音声入力 10点 --- */
+    { n:9, type:"multi", max:10, text:"次のうち、普段使っている操作を選んでください。",
+      opts:["コピー・貼り付け（Ctrl+C／Ctrl+V）","元に戻す・やり直し（Ctrl+Z／Ctrl+Y）","検索（Ctrl+F）","音声入力（Windows+H）","単語登録（よく使う言葉を短い読みで呼び出す）","どれも使っていない"],
+      none:[5], score:{ kind:"pick", per:2, cap:10 } },
+
+    /* --- 次にやってみたいこと（点数外） --- */
+    { n:10, type:"multi", max:0, text:"次にAIでやってみたいことを選んでください。",
+      note:"※点数には入りません。結果画面の「次の一歩」に使います。",
+      opts:["メール・文書の下書き","議事録の作成","長い文章の要約","調べもの・情報収集","企画・アイデア出し","スライド・資料の作成","数字の集計・分析","タスク管理","特にない"],
+      none:[8], score:{ kind:"free" } }
+  ];
+
+  /* ---------- 次の一歩（業務ごと×3段階） ----------
+     並びはQ10の選択肢と同じ＝Q2の4業務→Q3の4業務の順。
+     その業務のQ2・Q3の回答（まだ／試した／普段使っている）に合わせて、3段階のどれを出すか決める */
+  var TIP_STAGE = ["はじめる", "習慣にする", "一段上へ"];
+  var NEXT_TIPS = [
+    ["メール・文書の下書き", [
+      "「取引先の〇〇様へ、打合せ日程を調整するメールを丁寧な文で」と頼むところから始めましょう。",
+      "よく書くメール（日程調整・お礼・催促など）を1種類決め、毎回AIに下書きさせて、自分は直すだけにしてみましょう。",
+      "自社の言い回しや敬語のルールをまとめた「メール用の頼み方」を作り、職場で共有しましょう。誰が書いても同じ品質になります。" ]],
+    ["議事録の作成", [
+      "会議のメモを貼り付けて「決まったこと・宿題・期限に分けて整理して」と頼んでみましょう。",
+      "会議が終わったら毎回、メモを貼って「決定事項・宿題・期限」に整理させる流れを、会議の締めの習慣にしましょう。",
+      "議事録の型（見出し・担当・期限の書き方）を決めてAIに渡し、チームの議事録の形をそろえましょう。" ]],
+    ["長い文章の要約", [
+      "長い文章を貼り付けて「要点を3行で。最後に私がやるべきことを1つ」と頼んでみましょう。",
+      "要約のあとに「この中で、私の仕事に関係する点は？」と続けて聞き、読むだけで終わらせないようにしましょう。",
+      "複数の資料をまとめて渡し、「共通点と違い」を表にさせてみましょう。比較や判断の材料づくりまで任せられます。" ]],
+    ["調べもの・情報収集", [
+      "「〇〇について初心者向けに説明して。出典も付けて」と頼み、出典は自分の目で確認しましょう。",
+      "調べものを頼むときは「出典を付けて」を毎回入れ、出典を開いて確かめるところまでを1セットにしましょう。",
+      "調べる観点（市場・競合・制度など）を決めて頼み、結果を表にまとめさせましょう。定期的な調査は、頼み方を保存して使い回せます。" ]],
+    ["企画・アイデア出し", [
+      "「〇〇の案を10個。実現しやすい順に並べて」と頼み、良さそうな案を深掘りしてみましょう。",
+      "出てきた案に「この案の弱点と、その対策は？」と続けて聞きましょう。壁打ち相手として使うと、案の質が上がります。",
+      "「お客様」「上司」「現場の担当者」と立場を変えてAIに案を批評させ、提案前の最終チェックに使いましょう。" ]],
+    ["スライド・資料の作成", [
+      "「〇〇の提案資料の構成を5枚分。各スライドの見出しと要点で」と、まず骨組みから頼んでみましょう。",
+      "骨組みができたら、各スライドの文章もAIに整えさせ、自分は数字や図の確認に時間を使いましょう。",
+      "よく作る資料（提案書・報告書など）の構成を「型」にして保存し、毎回その型から作らせましょう。チームで共有すれば資料の質がそろいます。" ]],
+    ["数字の集計・分析", [
+      "個人名などを消した表を貼り付けて「傾向を3つと、気になる点を1つ」と頼んでみましょう。",
+      "AIに集計させたら、元の表で合計や件数を1か所だけでも確かめる習慣をつけましょう。計算の食い違いに気づけます。",
+      "AIのデータ分析機能に（個人名などを消した）表を読み込ませ、グラフや傾向の説明まで任せてみましょう。毎月の報告の手間を減らせます。" ]],
+    ["タスク管理", [
+      "やることを箇条書きで貼り付けて「期限と重要度で優先順位を付けて」と頼んでみましょう。",
+      "毎朝その日のやることを貼って「午前・午後に振り分けて」と頼む流れを、1週間続けてみましょう。",
+      "チームのやることをAIに整理させ、担当と期限の案まで作らせましょう。人は最終確認と判断に集中できます。" ]]
+  ];
+
+  /* ---------- 称号（要件定義書 4章） ---------- */
+  var RANKS = [
+    { min:0,  max:29,  name:"AIはじめの一歩", lv:"STEP 1 / FIRST STEP", key:"first",
+      advice:"ここからがスタートです。AIは、難しい操作を覚えなくても「話しかけるだけ」で使えます。まずは明日、メールの下書きを1通だけAIに頼んでみてください。うまくいかなくても大丈夫。1回試すだけで、次のチェックでは点数が確実に上がります。" },
+    { min:30, max:54,  name:"AIおためし中", lv:"STEP 2 / TRYING", key:"trying",
+      advice:"AIをすでに試している、良い位置にいます。次は「試した」を「普段使っている」に変える段階です。試したことのある仕事の中から1つだけ選び、毎週同じ曜日にAIで行う習慣にしてみてください。1つ習慣になると、ほかの仕事にも自然に広がっていきます。" },
+    { min:55, max:79,  name:"AI活用チャレンジャー", lv:"STEP 3 / CHALLENGER", key:"challenger",
+      advice:"仕事の中でAIを使いこなし始めています。ここから差がつくのは「頼み方」です。目的・役割・依頼内容・ゴール・出力形式の5つを意識して頼むと、答えの質がはっきり変わります。よく使う頼み方はメモに残し、次からはコピーして使い回しましょう。" },
+    { min:80, max:100, name:"AI活用リーダー", lv:"STEP 4 / LEADER", key:"leader",
+      advice:"AIを仕事の道具として使いこなせています。次は、そのやり方を周りに広げる番です。あなたがよく使う頼み方を1つ、職場の人に教えてみてください。あわせて「お客様の情報をAIに入れるときのルール」を職場で確認しておくと、みんなが安心して使えるようになります。" }
+  ];
+
+  /* ---------- シリーズのラインナップ（トップ画面と結果画面の「NEXT CHECK」に表示） ----------
+     state: "now" = このアプリ / "open" = 公開中（url へリンク） / "soon" = 準備中（名前は伏せる）
+     次のアプリを公開したら、"soon" の行を "open" に変えて name・desc・url を入れる */
+  var SERIES = [
+    { no:"01", tag:"BASIC",       name:"AI活用度チェック",   desc:"はじめての方〜中級の方向け・10問", state:"now" },
+    { no:"02", tag:"ADVANCED",    name:"AI活用度レベル診断", desc:"上級者まで測れる本格版・11問",     state:"open",
+      url:"https://snazzy-faun-b59ea8.netlify.app/",
+      localFile:"02_★ai-level-check.html" },   // パソコンでファイルを直接開いたとき（公開前の確認）は、同じフォルダの02へ飛ぶ。02のファイル名を変えたらここも直す
+    { no:"03", tag:"COMING SOON", name:"？？？",             desc:"次のチェックを準備中です",         state:"soon" }
+  ];
+
+  function seriesCard(s){
+    var c = document.createElement(s.state === "open" ? "a" : "div");
+    c.className = "sc " + s.state;
+    if(s.state === "open"){
+      c.href = (location.protocol === "file:" && s.localFile) ? s.localFile : s.url;
+      c.target = "_blank"; c.rel = "noopener";
+    }
+    var pill = { now:"いま ここ", open:"挑戦する →", soon:"🔒 準備中" }[s.state];
+    c.innerHTML = '<div class="no"></div><div class="body"><div class="tag"></div><div class="nm"></div><div class="ds"></div></div><div class="pill"></div>';
+    c.querySelector(".no").textContent   = s.no;
+    c.querySelector(".tag").textContent  = s.tag;
+    c.querySelector(".nm").textContent   = s.name;
+    c.querySelector(".ds").textContent   = s.desc;
+    c.querySelector(".pill").textContent = pill;
+    return c;
+  }
+  function renderSeries(boxId, skipNow){
+    var box = document.getElementById(boxId);
+    box.innerHTML = "";
+    SERIES.forEach(function(s){
+      if(skipNow && s.state === "now") return;
+      box.appendChild(seriesCard(s));
+    });
+  }
+
+  /* ---------- トップ画面の「成長の道のり」（4段の称号＋その先の「？」） ---------- */
+  function drawJourney(){
+    // 称号のバッジの絵（芽・電球・人・旗）はここでは見せず、番号だけにする。結果画面で初めて見せるため
+    var nodes = [
+      { x:34,  y:138, c:"#2f9e5b", label:"はじめの一歩" },
+      { x:112, y:112, c:"#2f5bea", label:"おためし中" },
+      { x:190, y:82,  c:"#6d3fd6", label:"チャレンジャー" },
+      { x:262, y:50,  c:"#e8a200", label:"リーダー" }
+    ];
+    var s = '<defs>'
+      + '<linearGradient id="jrGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2f9e5b"/>'
+      + '<stop offset="35%" stop-color="#2f5bea"/><stop offset="70%" stop-color="#6d3fd6"/><stop offset="100%" stop-color="#e8a200"/></linearGradient>'
+      + '<linearGradient id="jrQ" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2f5bea"/><stop offset="100%" stop-color="#6d3fd6"/></linearGradient>'
+      + '</defs>';
+    // 道：4段目まで実線、その先の「？」へは点線
+    s += '<path class="jr-path" d="M34 138 C70 138 80 112 112 112 S160 82 190 82 S232 50 262 50" fill="none" stroke="url(#jrGrad)" stroke-width="4" stroke-linecap="round"/>';
+    s += '<path d="M262 50 C286 50 294 16 312 16" fill="none" stroke="#b9c0cc" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>';
+    nodes.forEach(function(n, i){
+      s += '<g transform="translate(' + n.x + ' ' + n.y + ')"><g class="jr-node" style="animation-delay:' + (0.5 + i * 0.3) + 's">'
+         + '<circle r="16" fill="#ffffff" stroke="' + n.c + '" stroke-width="2.5"/>'
+         + '<text y="6" text-anchor="middle" font-size="16" font-weight="900" fill="' + n.c + '">' + (i + 1) + '</text>'
+         + '<text y="31" text-anchor="middle" font-size="10" font-weight="700" fill="#5b6472">' + n.label + '</text>'
+         + '</g></g>';
+    });
+    // 次のステージ「？」：脈打ちながら光が広がる
+    s += '<g transform="translate(312 16)">'
+       + '<circle class="jr-halo" r="17" fill="none" stroke="#6d3fd6" stroke-width="2"/>'
+       + '<g class="jr-node jr-next">'
+       + '<circle r="17" fill="#f3efff" stroke="url(#jrQ)" stroke-width="2" stroke-dasharray="4 3"/>'
+       + '<text y="7" text-anchor="middle" font-size="20" font-weight="900" fill="url(#jrQ)">?</text>'
+       + '<text y="33" text-anchor="middle" font-size="9.5" font-weight="800" fill="#6d3fd6" letter-spacing="1.5">NEXT</text>'
+       + '</g></g>';
+    document.getElementById("journey").innerHTML = s;
+  }
+
+  /* ---------- 状態 ---------- */
+  function emptyAnswer(q){
+    if(q.type === "single") return null;
+    if(q.type === "grid") return q.rows.map(function(){ return null; });
+    return [];
+  }
+  var answers = QUESTIONS.map(emptyAnswer);
+  var idx = 0;
+  var STORAGE_KEY = "aizu_ai_katsuyo_check_last_score";   // 既存版とは別のキー（点数が混ざらないように）
+
+  /* ---------- 保存（端末内のみ） ---------- */
+  function loadPrev(){
+    try{
+      var v = window.localStorage.getItem(STORAGE_KEY);
+      return v === null ? null : parseInt(v, 10);
+    }catch(e){ return null; }
+  }
+  function savePrev(v){
+    try{ window.localStorage.setItem(STORAGE_KEY, String(v)); }catch(e){}
+  }
+  function clearPrev(){
+    try{ window.localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  }
+
+  /* ---------- 採点 ---------- */
+  function scoreOf(qi){
+    var q = QUESTIONS[qi], a = answers[qi], s = q.score, t = 0, i;
+
+    if(q.type === "single"){
+      if(a === null) return 0;
+      if(s.kind === "list")  return s.pts[a] || 0;
+      if(s.kind === "right") return (a === s.right) ? s.pts : 0;
+      return 0;
+    }
+
+    if(q.type === "grid"){
+      for(i = 0; i < a.length; i++) if(a[i] !== null) t += s.pts[a[i]];
+      return Math.min(t, q.max);
+    }
+
+    if(s.kind === "free") return 0;
+    if(q.none && a.some(function(x){ return q.none.indexOf(x) !== -1; })) return 0;
+    if(s.kind === "pick") return Math.min(a.length * s.per, s.cap);
+    return 0;
+  }
+
+  function totalScore(){
+    var t = 0;
+    for(var i = 0; i < QUESTIONS.length; i++) t += scoreOf(i);
+    return Math.max(0, Math.min(100, Math.round(t)));
+  }
+
+  function rankOf(score){
+    for(var i = 0; i < RANKS.length; i++){
+      if(score >= RANKS[i].min && score <= RANKS[i].max) return RANKS[i];
+    }
+    return RANKS[0];
+  }
+
+  /* ---------- 画面切替 ---------- */
+  var el = {
+    top:    document.getElementById("screen-top"),
+    quiz:   document.getElementById("screen-quiz"),
+    result: document.getElementById("screen-result")
+  };
+  function show(which){
+    el.top.classList.toggle("hidden", which !== "top");
+    el.quiz.classList.toggle("hidden", which !== "quiz");
+    el.result.classList.toggle("hidden", which !== "result");
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 設問の描画 ---------- */
+  var barFill = document.getElementById("bar-fill");
+  var qNow    = document.getElementById("q-now");
+  var qBadge  = document.getElementById("q-badge");
+  var qText   = document.getElementById("q-text");
+  var qNote   = document.getElementById("q-note");
+  var qOpts   = document.getElementById("q-opts");
+  var btnNext = document.getElementById("btn-next");
+  var btnPrev = document.getElementById("btn-prev");
+  document.getElementById("q-all").textContent = String(QUESTIONS.length);
+
+  function answered(qi){
+    var q = QUESTIONS[qi], a = answers[qi];
+    if(q.type === "single") return a !== null;
+    if(q.type === "grid")   return a.every(function(v){ return v !== null; });
+    return a.length > 0;
+  }
+
+  function renderQuestion(){
+    var q = QUESTIONS[idx];
+    var isMulti = q.type === "multi", isGrid = q.type === "grid";
+
+    barFill.style.width = ((idx + 1) / QUESTIONS.length * 100) + "%";
+    qNow.textContent = String(idx + 1);
+
+    qBadge.className = "badge" + (isMulti ? " multi" : isGrid ? " grid" : "");
+    qBadge.textContent = isMulti ? "☑ 複数選択可" : isGrid ? "▦ 仕事ごとに1つ選択" : "◉ 1つ選択";
+
+    qText.textContent = q.text;
+    if(q.note){ qNote.textContent = q.note; qNote.classList.remove("hidden"); }
+    else { qNote.classList.add("hidden"); }
+
+    qOpts.innerHTML = "";
+    if(isGrid){ renderGrid(q); }
+    else{
+      q.opts.forEach(function(label, i){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "opt" + (isMulti ? " multi" : "");
+        b.setAttribute("aria-pressed", "false");
+
+        var box = document.createElement("span");
+        box.className = "box";
+        var txt = document.createElement("span");
+        txt.textContent = label;
+        b.appendChild(box);
+        b.appendChild(txt);
+
+        var on = isMulti ? (answers[idx].indexOf(i) !== -1) : (answers[idx] === i);
+        if(on){ b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+
+        b.addEventListener("click", function(){ choose(i); });
+        qOpts.appendChild(b);
+      });
+    }
+
+    btnNext.disabled = !answered(idx);
+    btnNext.innerHTML = (idx === QUESTIONS.length - 1) ? "結果を見る &#8594;" : "次の問題 &#8594;";
+    btnPrev.classList.toggle("hidden", idx === 0);
+  }
+
+  function renderGrid(q){
+    q.rows.forEach(function(label, r){
+      var row = document.createElement("div");
+      row.className = "grow" + (answers[idx][r] !== null ? " done" : "");
+      var lbl = document.createElement("div");
+      lbl.className = "lbl";
+      lbl.textContent = label;
+      var seg = document.createElement("div");
+      seg.className = "seg";
+      seg.setAttribute("role", "group");
+      seg.setAttribute("aria-label", label);
+      LEVELS.forEach(function(lv, l){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = lv;
+        var on = answers[idx][r] === l;
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        if(on) b.classList.add("on");
+        b.addEventListener("click", function(){
+          answers[idx][r] = (answers[idx][r] === l) ? null : l;
+          renderQuestion();
+        });
+        seg.appendChild(b);
+      });
+      row.appendChild(lbl);
+      row.appendChild(seg);
+      qOpts.appendChild(row);
+    });
+  }
+
+  function choose(i){
+    var q = QUESTIONS[idx];
+    if(q.type === "single"){
+      answers[idx] = (answers[idx] === i) ? null : i;
+    }else{
+      var list = answers[idx];
+      var at = list.indexOf(i);
+      if(at !== -1){
+        list.splice(at, 1);
+      }else{
+        if(q.none && q.none.indexOf(i) !== -1){
+          answers[idx] = [i];              // 「特にない」などを選んだら他を全部外す
+        }else{
+          if(q.none){
+            answers[idx] = list.filter(function(x){ return q.none.indexOf(x) === -1; });  // 他を選んだら「特にない」などを外す
+          }
+          answers[idx].push(i);
+        }
+      }
+    }
+    renderQuestion();
+  }
+
+  btnNext.addEventListener("click", function(){
+    if(!answered(idx)) return;
+    if(idx === QUESTIONS.length - 1){ finish(); }
+    else { idx++; renderQuestion(); window.scrollTo(0, 0); }
+  });
+  btnPrev.addEventListener("click", function(){
+    if(idx > 0){ idx--; renderQuestion(); window.scrollTo(0, 0); }
+  });
+
+  /* ---------- 称号バッジ（外部画像なし・SVGで描画。全称号に演出、上ほど華やか） ---------- */
+  function badgeFirst(){
+    // 鉢から小さな芽が伸びる
+    return '<g class="bx-in">'
+      + '<circle cx="60" cy="60" r="47" fill="#f1faf3" stroke="#2f9e5b" stroke-width="3"/>'
+      + '<g class="bx-grow"><g class="bx-sway">'
+      + '<path d="M60 82 L60 54" stroke="#2f9e5b" stroke-width="4" stroke-linecap="round"/>'
+      + '<path d="M60 66 Q44 65 41 51 Q56 50 60 66 Z" fill="#43b86f"/>'
+      + '<path d="M60 58 Q76 57 80 42 Q63 41 60 58 Z" fill="#2f9e5b"/>'
+      + '</g></g>'
+      + '<path d="M46 84 L74 84 L70 97 L50 97 Z" fill="#c0855a"/>'
+      + '<rect x="43" y="80" width="34" height="7" rx="2" fill="#9a6238"/>'
+      + '</g>';
+  }
+
+  function badgeTrying(){
+    // 光る電球と、まわりに広がる光の粒
+    var s = '<g class="bx-in">'
+      + '<circle cx="60" cy="60" r="47" fill="#eef4ff" stroke="#2f5bea" stroke-width="3"/>'
+      + '<circle class="bx-glow" cx="60" cy="50" r="24" fill="#ffe27a"/>'
+      + '<path d="M60 31 A18 18 0 0 1 71 63 V69 H49 V63 A18 18 0 0 1 60 31 Z" fill="#ffd84d" stroke="#e0a800" stroke-width="2"/>'
+      + '<path d="M55 63 V55 L60 50 L65 55 V63" fill="none" stroke="#e0a800" stroke-width="1.8" stroke-linejoin="round"/>'
+      + '<rect x="50" y="72" width="20" height="5" rx="2" fill="#5b6472"/>'
+      + '<rect x="53" y="79" width="14" height="4" rx="2" fill="#5b6472"/>';
+    [[32,34,0],[88,34,.4],[26,62,.8],[94,62,1.2],[38,86,1.6],[82,86,.2]].forEach(function(p){
+      s += '<circle class="bx-spark" cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#2f5bea" style="animation-delay:' + p[2] + 's"/>';
+    });
+    return s + '</g>';
+  }
+
+  function badgeChallenger(){
+    // 前へ踏み出す人と、広がる光の輪
+    return '<circle class="bx-ring" cx="60" cy="60" r="44" fill="none" stroke="#a78bfa" stroke-width="3"/>'
+      + '<circle class="bx-ring r2" cx="60" cy="60" r="44" fill="none" stroke="#a78bfa" stroke-width="3"/>'
+      + '<g class="bx-in">'
+      + '<circle cx="60" cy="60" r="47" fill="#f3efff" stroke="#6d3fd6" stroke-width="3"/>'
+      + '<g class="bx-bob" fill="#6d3fd6">'
+      + '<circle cx="61" cy="36" r="6.5"/>'
+      + '<path d="M54 46 Q61 43 67 46 L65 64 L56 64 Z"/>'
+      + '<g fill="none" stroke="#6d3fd6" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">'
+      + '<polyline points="55,49 48,57 44,64"/><polyline points="66,49 73,55 79,50"/>'
+      + '<polyline points="57,63 51,74 44,82"/><polyline points="63,63 69,73 76,80"/></g>'
+      + '</g></g>';
+  }
+
+  function badgeLeader(){
+    // 回る後光、旗を掲げる人、舞う紙吹雪
+    var rays = "", k;
+    function pt(a, r){ return (60 + Math.cos(a) * r).toFixed(1) + " " + (60 + Math.sin(a) * r).toFixed(1); }
+    for(k = 0; k < 12; k++){
+      var a = k * Math.PI / 6, w = 0.12;
+      rays += "M" + pt(a - w, 46) + " L" + pt(a, 60) + " L" + pt(a + w, 46) + "Z";
+    }
+    var s = '<g class="bx-in">'
+      + '<g class="bx-spin"><path d="' + rays + '" fill="#ffc21a" opacity=".75"/></g>'
+      + '<circle cx="60" cy="60" r="45" fill="#fff8e1" stroke="#e8a200" stroke-width="3"/>'
+      + '<g fill="#b87900">'
+      + '<circle cx="55" cy="45" r="6.5"/>'
+      + '<path d="M48 54 Q55 51 62 54 L60 71 L51 71 Z"/>'
+      + '<g fill="none" stroke="#b87900" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">'
+      + '<polyline points="50,56 45,64 46,71"/><polyline points="60,56 65,47 68,38"/>'
+      + '<polyline points="53,70 50,80 48,88"/><polyline points="58,70 62,80 64,88"/></g>'
+      + '</g>'
+      + '<line x1="69" y1="22" x2="69" y2="62" stroke="#7a4f00" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<path class="bx-flag" d="M69 23 L89 28.5 L69 34 Z" fill="#e0453a"/>';
+    [[24,14,"#e0453a",0],[40,8,"#2f5bea",.5],[82,10,"#2f9e5b",1],[98,18,"#e8a200",1.5],
+     [30,24,"#6d3fd6",2],[92,6,"#e0453a",2.4],[52,4,"#e8a200",.8],[72,2,"#6d3fd6",1.8]].forEach(function(p){
+      s += '<rect class="bx-conf" x="' + p[0] + '" y="' + p[1] + '" width="4" height="7" rx="1" fill="' + p[2]
+         + '" style="animation-delay:' + p[3] + 's"/>';
+    });
+    return s + '</g>';
+  }
+
+  function drawBadge(rank){
+    var svg = document.getElementById("r-badge");
+    document.querySelector(".rankbox").classList.toggle("leader", rank.key === "leader");
+    svg.innerHTML = {
+      first:      badgeFirst,
+      trying:     badgeTrying,
+      challenger: badgeChallenger,
+      leader:     badgeLeader
+    }[rank.key]();
+  }
+
+  /* ---------- 現在地グラフ（外部ライブラリなし） ---------- */
+  function drawGraph(score){
+    var svg = document.getElementById("r-graph");
+    var x0 = 14, x1 = 300, yB = 96, yTop = 28;   // 描画領域
+    function px(v){ return x0 + (x1 - x0) * (v / 100); }
+    var marks = [0].concat(RANKS.slice(1).map(function(r){ return r.min; }), [100]);
+    var s = "";
+
+    s += '<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">'
+       + '<stop offset="0%" stop-color="var(--mesh)" stop-opacity=".25"/>'
+       + '<stop offset="100%" stop-color="var(--ink)" stop-opacity=".75"/>'
+       + '</linearGradient></defs>';
+    s += '<polygon points="' + x0 + ',' + yB + ' ' + x1 + ',' + yTop + ' ' + x1 + ',' + yB + '" fill="url(#g1)"/>';
+    s += '<line x1="' + x0 + '" y1="' + yB + '" x2="' + x1 + '" y2="' + yB + '" stroke="var(--line)" stroke-width="1"/>';
+
+    marks.forEach(function(m){
+      var x = px(m);
+      if(m !== 0 && m !== 100){
+        s += '<line x1="' + x + '" y1="' + (yTop + 6) + '" x2="' + x + '" y2="' + yB + '" stroke="var(--mesh)" stroke-width="1" stroke-dasharray="3 3"/>';
+      }
+      s += '<text x="' + x + '" y="' + (yB + 16) + '" fill="var(--ink-sub)" font-size="11" text-anchor="middle">' + m + '</text>';
+    });
+
+    var xs = px(score);
+    var lx = Math.max(x0 + 28, Math.min(x1 - 28, xs));
+    s += '<line x1="' + xs + '" y1="' + (yB - 44) + '" x2="' + xs + '" y2="' + yB + '" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+    s += '<circle cx="' + xs + '" cy="' + (yB - 44) + '" r="9" fill="var(--card)" stroke="var(--accent)" stroke-width="3"/>';
+    s += '<rect x="' + (lx - 34) + '" y="' + (yB - 74) + '" width="68" height="20" rx="10" fill="var(--accent)"/>';
+    s += '<text x="' + lx + '" y="' + (yB - 60) + '" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">あなた ' + score + '点</text>';
+
+    svg.innerHTML = s;
+  }
+
+  function drawTiers(rank){
+    var box = document.getElementById("r-tiers");
+    box.innerHTML = "";
+    RANKS.forEach(function(r){
+      var sp = document.createElement("span");
+      sp.textContent = r.name;
+      if(r.key === rank.key) sp.className = "on";
+      box.appendChild(sp);
+    });
+  }
+
+  /* ---------- 次の一歩（最大2つ。業務ごとのレベルで3段階を出し分け） ----------
+     ・Q10で業務を選んだ → その業務を、Q2・Q3の回答に合った段階で出す
+     ・「特にない」→ いちばん使い込んでいる業務を自動で選び、その段階で出す（全部「まだ」ならメールの「はじめる」） */
+  function drawNext(){
+    var list = document.getElementById("r-next");
+    var level = answers[1].concat(answers[2]).map(function(v){ return v === null ? 0 : v; });   // Q2・Q3の8業務
+    var picked = answers[QUESTIONS.length - 1].filter(function(i){ return i < NEXT_TIPS.length; })
+                   .sort(function(a, b){ return a - b; }).slice(0, 2);
+    if(picked.length === 0){
+      var order = level.map(function(lv, i){ return i; })
+                       .filter(function(i){ return level[i] > 0; })
+                       .sort(function(a, b){ return (level[b] - level[a]) || (a - b); });   // よく使っている順（同じなら並び順）
+      picked = order.length ? order.slice(0, 2) : [0];
+    }
+    list.innerHTML = "";
+    picked.forEach(function(i){
+      var st = level[i];
+      var li = document.createElement("li");
+      var b = document.createElement("b");
+      b.textContent = NEXT_TIPS[i][0];
+      var tag = document.createElement("span");
+      tag.className = "stg s" + st;
+      tag.textContent = TIP_STAGE[st];
+      b.appendChild(tag);
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(NEXT_TIPS[i][1][st]));
+      list.appendChild(li);
+    });
+  }
+
+  /* ---------- 結果の表示 ---------- */
+  function finish(){
+    var score = totalScore();
+    var rank  = rankOf(score);
+    var prev  = loadPrev();
+
+    document.getElementById("r-score").textContent = String(score);
+    document.getElementById("r-name").textContent  = rank.name;
+    document.getElementById("r-lv").textContent    = rank.lv;
+    document.getElementById("r-advice").textContent = rank.advice;
+
+    var d = document.getElementById("r-delta");
+    if(prev === null || isNaN(prev)){
+      d.textContent = "";
+    }else{
+      var diff = score - prev;
+      var sign = diff > 0 ? "+" : (diff < 0 ? "−" : "±");
+      d.innerHTML = "前回（" + prev + "点）より <b>" + sign + Math.abs(diff) + "点</b>";
+    }
+
+    // NEXT CHECK：点数に応じて、次のステージへの誘い方を変える
+    var nt = document.getElementById("r-next-title"), nx = document.getElementById("r-next-text");
+    if(score >= 80){
+      nt.textContent = "上級編に挑戦してみませんか？";
+      nx.textContent = "このチェックの最上位に届きました。上級者まで測れる「AI活用度レベル診断」で、さらに上の現在地を確かめてみましょう。";
+    }else if(score >= 55){
+      nt.textContent = "最上位まで、あと少し。その先もあります。";
+      nx.textContent = "80点を超えたら、上級編「AI活用度レベル診断」にも挑戦してみてください。";
+    }else{
+      nt.textContent = "このシリーズには、次のステージがあります。";
+      nx.textContent = "まずは「次の一歩」を試して、このチェックを受け直してみましょう。点数が上がったら、上級編が待っています。";
+    }
+    renderSeries("r-series", true);
+
+    drawBadge(rank);
+    drawNext();
+    drawGraph(score);
+    drawTiers(rank);
+    savePrev(score);
+
+    show("result");
+  }
+
+  /* ---------- トップ画面のボタン ---------- */
+  function refreshPrevNote(){
+    var prev = loadPrev();
+    var n = document.getElementById("prev-note");
+    n.textContent = (prev === null || isNaN(prev))
+      ? ""
+      : "前回この端末でチェックした点数：" + prev + "点";
+  }
+
+  document.getElementById("btn-start").addEventListener("click", function(){
+    answers = QUESTIONS.map(emptyAnswer);
+    idx = 0;
+    renderQuestion();
+    show("quiz");
+  });
+  document.getElementById("btn-again").addEventListener("click", function(){
+    refreshPrevNote();
+    show("top");
+  });
+  document.getElementById("btn-clear").addEventListener("click", function(){
+    clearPrev();
+    document.getElementById("r-delta").textContent = "";
+    refreshPrevNote();
+  });
+
+  /* =========================================================
+     背景のポリゴン模様（アニメーション）※既存版と同じ
+     ・外部ライブラリ・外部画像は一切使わず canvas で描画
+     ・点がゆっくり漂い、近づいた点どうしが線で結ばれる
+     ・端末の「視差効果を減らす」設定がONのときは静止画として描画
+     ・タブが非表示のあいだは停止（電池を無駄に使わない）
+     ========================================================= */
+  (function mesh(){
+    var cv = document.getElementById("mesh");
+    if(!cv || !cv.getContext) return;
+    var ctx = cv.getContext("2d");
+
+    var W = 0, H = 0, dpr = 1;
+    var pts = [];
+    var LINK = 130;           // この距離より近い点どうしを線で結ぶ（px）
+    var SPEED = 0.16;         // 点の移動速度（px/フレーム）
+    var color = "#c3c9d4";
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var raf = null;
+
+    function readColor(){
+      var c = getComputedStyle(document.documentElement).getPropertyValue("--mesh").trim();
+      if(c) color = c;
+    }
+
+    function density(){
+      return Math.max(26, Math.min(64, Math.round(W * H / 26000)));
+    }
+
+    function build(){
+      var n = density();
+      pts = [];
+      for(var i = 0; i < n; i++){
+        var a = Math.random() * Math.PI * 2;
+        pts.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: Math.cos(a) * SPEED,
+          vy: Math.sin(a) * SPEED
+        });
+      }
+    }
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      cv.width  = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      cv.style.width  = W + "px";
+      cv.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      readColor();
+      build();
+      if(reduce) draw();
+    }
+
+    function step(){
+      for(var i = 0; i < pts.length; i++){
+        var p = pts[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < -20) p.x = W + 20;
+        if(p.x > W + 20) p.x = -20;
+        if(p.y < -20) p.y = H + 20;
+        if(p.y > H + 20) p.y = -20;
+      }
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 0.7;
+
+      for(var i = 0; i < pts.length; i++){
+        for(var j = i + 1; j < pts.length; j++){
+          var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if(d < LINK){
+            ctx.globalAlpha = (1 - d / LINK) * 0.5;   // 近いほど濃く
+            ctx.beginPath();
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 0.7;
+      for(i = 0; i < pts.length; i++){
+        ctx.beginPath();
+        ctx.arc(pts[i].x, pts[i].y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function loop(){
+      step();
+      draw();
+      raf = window.requestAnimationFrame(loop);
+    }
+
+    function start(){
+      if(reduce || raf !== null) return;
+      raf = window.requestAnimationFrame(loop);
+    }
+    function stop(){
+      if(raf !== null){ window.cancelAnimationFrame(raf); raf = null; }
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", function(){
+      if(document.hidden) stop(); else start();
+    });
+    start();
+  })();
+
+  drawJourney();
+  renderSeries("series-list", false);
+  refreshPrevNote();
+})();
+</script>
+</body>
+</html>
